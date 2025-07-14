@@ -1,15 +1,14 @@
 package net.ludocrypt.limlib.api.world.maze.types;
 
-import java.util.List;
-import java.util.Stack;
-
 import com.google.common.collect.Lists;
-
 import net.ludocrypt.limlib.api.world.maze.MazeComponent;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.CellState;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.Face;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.Vec2i;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.RandomSource;
+
+import java.util.List;
+import java.util.Stack;
 
 public class MazeTypes {
 
@@ -108,7 +107,7 @@ public class MazeTypes {
 		return dilate;
 	}
 
-	public static MazeComponent depthFirst(int width, int height, RandomGenerator random) {
+	public static MazeComponent depthFirst(int width, int height, RandomSource random) {
 		DepthLikeMaze depthLike = new DepthLikeMaze(new MazeComponent(width, height));
 		MazeComponent maze = depthLike.maze;
 
@@ -149,7 +148,7 @@ public class MazeTypes {
 		return maze;
 	}
 
-	public static MazeComponent solve(MazeComponent mazeToSolve, RandomGenerator random, Vec2i end, Vec2i... roots) {
+	public static MazeComponent solve(MazeComponent mazeToSolve, RandomSource random, Vec2i end, Vec2i... roots) {
 		DepthLikeMaze depthLike = new DepthLikeMaze(new MazeComponent(mazeToSolve.width, mazeToSolve.height));
 		MazeComponent maze = depthLike.maze;
 

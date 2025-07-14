@@ -1,29 +1,27 @@
 package net.ludocrypt.limlib.api.world.nbt;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import org.apache.commons.lang3.function.TriFunction;
+
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
-import org.apache.commons.lang3.function.TriFunction;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
-
 public class NbtTags {
 
 	// Map<Group, Map<Structure, Map<Key, Tag>>>
-	public final Map<String, Map<Identifier, Map<String, NbtCompound>>> tags;
+	public final Map<String, Map<ResourceLocation, Map<String, CompoundTag>>> tags;
 
 	// Map<Cache, Map<Group, Set<Structure>>>
-	public final Map<String, Map<String, Set<Identifier>>> matchingGroupCache;
+	public final Map<String, Map<String, Set<ResourceLocation>>> matchingGroupCache;
 
 	// Map<Cache, Set<Structure>>
-	public final Map<String, Set<Identifier>> matchingCache;
+	public final Map<String, Set<ResourceLocation>> matchingCache;
 
 	public NbtTags() {
 		this.tags = Maps.newHashMap();
@@ -35,12 +33,12 @@ public class NbtTags {
 		NbtTags tags = new NbtTags();
 
 		group.forEachGroup((groupId, id) -> {
-			NbtCompound readTags = NbtPlacerUtil.loadTags(id, manager);
-			Map<String, NbtCompound> tagsMap = tags.tags
+			CompoundTag readTags = NbtPlacerUtil.loadTags(id, manager);
+			Map<String, CompoundTag> tagsMap = tags.tags
 				.computeIfAbsent(groupId, (g) -> Maps.newHashMap())
 				.computeIfAbsent(id, (g) -> Maps.newHashMap());
 
-			for (String tagKey : readTags.getKeys()) {
+			for (String tagKey : readTags.getAllKeys()) {
 				tagsMap.put(tagKey, readTags.getCompound(tagKey));
 			}
 
@@ -49,16 +47,16 @@ public class NbtTags {
 		return tags;
 	}
 
-	public Map<String, Set<Identifier>> matching(TriFunction<String, String, NbtCompound, Boolean> matcher) {
+	public Map<String, Set<ResourceLocation>> matching(TriFunction<String, String, CompoundTag, Boolean> matcher) {
 
-		Map<String, Set<Identifier>> matching = Maps.newHashMap();
+		Map<String, Set<ResourceLocation>> matching = Maps.newHashMap();
 
-		for (Entry<String, Map<Identifier, Map<String, NbtCompound>>> groupEntry : this.tags.entrySet()) {
-			Set<Identifier> groupSet = Sets.newHashSet();
+		for (Entry<String, Map<ResourceLocation, Map<String, CompoundTag>>> groupEntry : this.tags.entrySet()) {
+			Set<ResourceLocation> groupSet = Sets.newHashSet();
 
-			for (Entry<Identifier, Map<String, NbtCompound>> tagsEntry : groupEntry.getValue().entrySet()) {
+			for (Entry<ResourceLocation, Map<String, CompoundTag>> tagsEntry : groupEntry.getValue().entrySet()) {
 
-				for (Entry<String, NbtCompound> tagEntry : tagsEntry.getValue().entrySet()) {
+				for (Entry<String, CompoundTag> tagEntry : tagsEntry.getValue().entrySet()) {
 
 					if (matcher.apply(groupEntry.getKey(), tagEntry.getKey(), tagEntry.getValue())) {
 						groupSet.add(tagsEntry.getKey());
@@ -74,15 +72,15 @@ public class NbtTags {
 		return matching;
 	}
 
-	public Set<Identifier> matching(BiPredicate<String, NbtCompound> matcher) {
+	public Set<ResourceLocation> matching(BiPredicate<String, CompoundTag> matcher) {
 
-		Set<Identifier> matching = Sets.newHashSet();
+		Set<ResourceLocation> matching = Sets.newHashSet();
 
-		for (Entry<String, Map<Identifier, Map<String, NbtCompound>>> groupEntry : this.tags.entrySet()) {
+		for (Entry<String, Map<ResourceLocation, Map<String, CompoundTag>>> groupEntry : this.tags.entrySet()) {
 
-			for (Entry<Identifier, Map<String, NbtCompound>> tagsEntry : groupEntry.getValue().entrySet()) {
+			for (Entry<ResourceLocation, Map<String, CompoundTag>> tagsEntry : groupEntry.getValue().entrySet()) {
 
-				for (Entry<String, NbtCompound> tagEntry : tagsEntry.getValue().entrySet()) {
+				for (Entry<String, CompoundTag> tagEntry : tagsEntry.getValue().entrySet()) {
 
 					if (matcher.test(tagEntry.getKey(), tagEntry.getValue())) {
 						matching.add(tagsEntry.getKey());
@@ -97,20 +95,20 @@ public class NbtTags {
 		return matching;
 	}
 
-	public Map<String, Set<Identifier>> matching(String cache, TriFunction<String, String, NbtCompound, Boolean> matcher) {
+	public Map<String, Set<ResourceLocation>> matching(String cache, TriFunction<String, String, CompoundTag, Boolean> matcher) {
 		return this.matchingGroupCache.computeIfAbsent(cache, (c) -> matching(matcher));
 	}
 
-	public Set<Identifier> matching(String cache, BiPredicate<String, NbtCompound> matcher) {
+	public Set<ResourceLocation> matching(String cache, BiPredicate<String, CompoundTag> matcher) {
 		this.matchingGroupCache.computeIfAbsent(cache, (c) -> matching((group, tagKey, nbt) -> matcher.test(tagKey, nbt)));
 		return this.matchingCache.computeIfAbsent(cache, (c) -> matching(matcher));
 	}
 
-	public Set<Identifier> matching(String... cache) {
-		Set<Identifier> all = null;
+	public Set<ResourceLocation> matching(String... cache) {
+		Set<ResourceLocation> all = null;
 
 		for (String c : cache) {
-			Set<Identifier> cacheSet = this.matchingCache.getOrDefault(c, Sets.newHashSet());
+			Set<ResourceLocation> cacheSet = this.matchingCache.getOrDefault(c, Sets.newHashSet());
 
 			if (all == null) {
 				all = cacheSet;
@@ -123,15 +121,15 @@ public class NbtTags {
 		return all;
 	}
 
-	public Map<String, Set<Identifier>> matchingGroups(String... cache) {
+	public Map<String, Set<ResourceLocation>> matchingGroups(String... cache) {
 
-		Map<String, Set<Identifier>> matching = Maps.newHashMap();
+		Map<String, Set<ResourceLocation>> matching = Maps.newHashMap();
 
 		for (String key : this.tags.keySet()) {
-			Set<Identifier> all = null;
+			Set<ResourceLocation> all = null;
 
 			for (String c : cache) {
-				Set<Identifier> cacheSet = this.matchingGroupCache
+				Set<ResourceLocation> cacheSet = this.matchingGroupCache
 					.getOrDefault(key, Maps.newHashMap())
 					.getOrDefault(c, Sets.newHashSet());
 

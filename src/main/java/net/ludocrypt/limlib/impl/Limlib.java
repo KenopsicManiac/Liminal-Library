@@ -1,8 +1,11 @@
 package net.ludocrypt.limlib.impl;
 
-import org.quiltmc.loader.api.ModContainer;
-import org.quiltmc.loader.api.QuiltLoader;
-import org.quiltmc.qsl.base.api.entrypoint.ModInitializer;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,16 +17,13 @@ import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
 import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
 import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
 
 public class Limlib implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("Limlib");
 
 	@Override
-	public void onInitialize(ModContainer mod) {
+	public void onInitialize() {
 		LimlibWorld.load();
 
 		// Effects
@@ -34,9 +34,9 @@ public class Limlib implements ModInitializer {
 		Skybox.init();
 
 		Registry
-			.register(Registries.CHUNK_GENERATOR, new Identifier("limlib", "debug_nbt_chunk_generator"),
+			.register(BuiltInRegistries.CHUNK_GENERATOR, new ResourceLocation("limlib", "debug_nbt_chunk_generator"),
 				DebugNbtChunkGenerator.CODEC);
-		QuiltLoader
+		FabricLoader.getInstance()
 			.getEntrypoints(LimlibRegistrar.ENTRYPOINT_KEY, LimlibRegistrar.class)
 			.forEach(LimlibRegistrar::registerHooks);
 	}

@@ -1,58 +1,57 @@
 package net.ludocrypt.limlib.api.world;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 
-import net.minecraft.util.BlockMirror;
-import net.minecraft.util.BlockRotation;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.random.RandomGenerator;
+public enum Manipulation implements StringRepresentable {
 
-public enum Manipulation implements StringIdentifiable {
+	NONE("none", Rotation.NONE, Mirror.NONE),
+	CLOCKWISE_90("clockwise_90", Rotation.CLOCKWISE_90, Mirror.NONE),
+	CLOCKWISE_180("180", Rotation.CLOCKWISE_180, Mirror.NONE),
+	COUNTERCLOCKWISE_90("counterclockwise_90", Rotation.COUNTERCLOCKWISE_90, Mirror.NONE),
+	FRONT_BACK("front_back", Rotation.NONE, Mirror.FRONT_BACK),
+	LEFT_RIGHT("left_right", Rotation.NONE, Mirror.LEFT_RIGHT),
+	TOP_LEFT_BOTTOM_RIGHT("top_left_bottom_right", Rotation.COUNTERCLOCKWISE_90, Mirror.LEFT_RIGHT),
+	TOP_RIGHT_BOTTOM_LEFT("top_right_bottom_left", Rotation.CLOCKWISE_90, Mirror.LEFT_RIGHT);
 
-	NONE("none", BlockRotation.NONE, BlockMirror.NONE),
-	CLOCKWISE_90("clockwise_90", BlockRotation.CLOCKWISE_90, BlockMirror.NONE),
-	CLOCKWISE_180("180", BlockRotation.CLOCKWISE_180, BlockMirror.NONE),
-	COUNTERCLOCKWISE_90("counterclockwise_90", BlockRotation.COUNTERCLOCKWISE_90, BlockMirror.NONE),
-	FRONT_BACK("front_back", BlockRotation.NONE, BlockMirror.FRONT_BACK),
-	LEFT_RIGHT("left_right", BlockRotation.NONE, BlockMirror.LEFT_RIGHT),
-	TOP_LEFT_BOTTOM_RIGHT("top_left_bottom_right", BlockRotation.COUNTERCLOCKWISE_90, BlockMirror.LEFT_RIGHT),
-	TOP_RIGHT_BOTTOM_LEFT("top_right_bottom_left", BlockRotation.CLOCKWISE_90, BlockMirror.LEFT_RIGHT);
-
-	public static final Codec<Manipulation> CODEC = StringIdentifiable.createCodec(Manipulation::values);
+	public static final Codec<Manipulation> CODEC = StringRepresentable.fromEnum(Manipulation::values);
 	final String id;
-	final BlockRotation rotation;
-	final BlockMirror mirror;
+	final Rotation rotation;
+	final Mirror mirror;
 
-	Manipulation(String id, BlockRotation rotation, BlockMirror mirror) {
+	Manipulation(String id, Rotation rotation, Mirror mirror) {
 		this.id = id;
 		this.rotation = rotation;
 		this.mirror = mirror;
 	}
 
-	public BlockRotation getRotation() {
+	public Rotation getRotation() {
 		return rotation;
 	}
 
-	public BlockMirror getMirror() {
+	public Mirror getMirror() {
 		return mirror;
 	}
 
 	@Override
-	public String asString() {
+	public String getSerializedName() {
 		return id;
 	}
 
-	public static Manipulation random(RandomGenerator random) {
+	public static Manipulation random(RandomSource random) {
 		return Manipulation.values()[random.nextInt(8)];
 	}
 
-	public static Manipulation of(BlockRotation rotation) {
-		return of(rotation, BlockMirror.NONE);
+	public static Manipulation of(Rotation rotation) {
+		return of(rotation, Mirror.NONE);
 	}
 
-	public static Manipulation of(BlockMirror mirror) {
-		return of(BlockRotation.NONE, mirror);
+	public static Manipulation of(Mirror mirror) {
+		return of(Rotation.NONE, mirror);
 	}
 
 	public static Manipulation of(Direction from, Direction to) {
@@ -94,7 +93,7 @@ public enum Manipulation implements StringIdentifiable {
 		};
 	}
 
-	public static Manipulation of(BlockRotation rotation, BlockMirror mirror) {
+	public static Manipulation of(Rotation rotation, Mirror mirror) {
 		return switch (rotation) {
 			case NONE -> (switch (mirror) {
 				case NONE -> NONE;
@@ -119,7 +118,7 @@ public enum Manipulation implements StringIdentifiable {
 		};
 	}
 
-	public Manipulation rotate(BlockRotation rotation) {
+	public Manipulation rotate(Rotation rotation) {
 		return switch (rotation) {
 			case NONE -> this;
 			case CLOCKWISE_180 -> (switch (this) {
@@ -155,7 +154,7 @@ public enum Manipulation implements StringIdentifiable {
 		};
 	}
 
-	public Manipulation mirror(BlockMirror mirror) {
+	public Manipulation mirror(Mirror mirror) {
 		return switch (mirror) {
 			case NONE -> this;
 			case FRONT_BACK -> (switch (this) {
@@ -185,16 +184,16 @@ public enum Manipulation implements StringIdentifiable {
 		return this.rotate(manipulation.rotation).mirror(manipulation.mirror);
 	}
 
-	public BlockRotation flattenRotation() {
+	public Rotation flattenRotation() {
 		return switch (this) {
-			case NONE -> BlockRotation.NONE;
-			case FRONT_BACK -> BlockRotation.CLOCKWISE_180;
-			case LEFT_RIGHT -> BlockRotation.NONE;
-			case CLOCKWISE_180 -> BlockRotation.CLOCKWISE_180;
-			case CLOCKWISE_90 -> BlockRotation.CLOCKWISE_90;
-			case COUNTERCLOCKWISE_90 -> BlockRotation.COUNTERCLOCKWISE_90;
-			case TOP_LEFT_BOTTOM_RIGHT -> BlockRotation.CLOCKWISE_90;
-			case TOP_RIGHT_BOTTOM_LEFT -> BlockRotation.COUNTERCLOCKWISE_90;
+			case NONE -> Rotation.NONE;
+			case FRONT_BACK -> net.minecraft.world.level.block.Rotation.CLOCKWISE_180;
+			case LEFT_RIGHT -> Rotation.NONE;
+			case CLOCKWISE_180 -> Rotation.CLOCKWISE_180;
+			case CLOCKWISE_90 -> Rotation.CLOCKWISE_90;
+			case COUNTERCLOCKWISE_90 -> Rotation.COUNTERCLOCKWISE_90;
+			case TOP_LEFT_BOTTOM_RIGHT -> Rotation.CLOCKWISE_90;
+			case TOP_RIGHT_BOTTOM_LEFT -> Rotation.COUNTERCLOCKWISE_90;
 		};
 	}
 

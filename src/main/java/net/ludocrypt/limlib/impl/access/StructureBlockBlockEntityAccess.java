@@ -1,11 +1,11 @@
 package net.ludocrypt.limlib.impl.access;
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 
 public interface StructureBlockBlockEntityAccess {
 
-	public NbtCompound getTags();
+	public CompoundTag getTags();
 
-	public void setTags(NbtCompound tags);
+	public void setTags(CompoundTag tags);
 
 }

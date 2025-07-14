@@ -2,21 +2,22 @@ package net.ludocrypt.limlib.impl.shader;
 
 import java.util.Set;
 
-import org.quiltmc.qsl.resource.loader.api.reloader.SimpleSynchronousResourceReloader;
-
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
+import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 
-public final class PostProcesserManager implements SimpleSynchronousResourceReloader {
+public final class PostProcesserManager implements SimpleSynchronousResourceReloadListener {
 
 	public static final PostProcesserManager INSTANCE = new PostProcesserManager();
-	public static final Identifier RESOURCE_KEY = new Identifier("limlib:shaders");
+	public static final ResourceLocation RESOURCE_KEY = new ResourceLocation("limlib:shaders");
 
 	private final Set<PostProcesser> shaders = new ReferenceOpenHashSet<>();
 
-	public PostProcesser find(Identifier location) {
+	public PostProcesser find(ResourceLocation location) {
 		PostProcesser ret = new PostProcesser(location);
 		shaders.add(ret);
 		return ret;
@@ -29,10 +30,10 @@ public final class PostProcesserManager implements SimpleSynchronousResourceRelo
 			for (PostProcesser shader : shaders) {
 
 				if (shader.isInitialized()) {
-					MinecraftClient client = MinecraftClient.getInstance();
+					Minecraft client = Minecraft.getInstance();
 					shader.shader
-						.setupDimensions(client.getWindow().getFramebufferWidth(),
-							client.getWindow().getFramebufferHeight());
+						.resize(client.getWindow().getWidth(),
+							client.getWindow().getHeight());
 				}
 
 			}
@@ -42,12 +43,12 @@ public final class PostProcesserManager implements SimpleSynchronousResourceRelo
 	}
 
 	@Override
-	public Identifier getQuiltId() {
+	public ResourceLocation getFabricId() {
 		return RESOURCE_KEY;
 	}
 
 	@Override
-	public void reload(ResourceManager mgr) {
+	public void onResourceManagerReload(ResourceManager mgr) {
 
 		for (PostProcesser shader : shaders) {
 			shader.init(mgr);

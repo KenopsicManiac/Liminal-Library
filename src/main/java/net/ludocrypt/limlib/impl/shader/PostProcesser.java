@@ -2,23 +2,22 @@ package net.ludocrypt.limlib.impl.shader;
 
 import java.io.IOException;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.ludocrypt.limlib.impl.Limlib;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.ShaderEffect;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
-
 public class PostProcesser {
 
-	private final Identifier location;
-	protected ShaderEffect shader;
+	private final ResourceLocation location;
+	protected PostChain shader;
 	private boolean loaded;
 
-	public PostProcesser(Identifier location) {
+	public PostProcesser(ResourceLocation location) {
 		this.location = location;
 	}
 
@@ -26,9 +25,9 @@ public class PostProcesser {
 
 		try {
 			this.release();
-			MinecraftClient client = MinecraftClient.getInstance();
+			Minecraft client = Minecraft.getInstance();
 			this.shader = parseShader(resourceManager, client, this.location);
-			this.shader.setupDimensions(client.getWindow().getFramebufferWidth(), client.getWindow().getFramebufferHeight());
+			this.shader.resize(client.getWindow().getWidth(), client.getWindow().getHeight());
 		} catch (IOException e) {
 			this.loaded = true;
 			Limlib.LOGGER.error("Could not create screen shader {}", this.getLocation(), e);
@@ -36,9 +35,9 @@ public class PostProcesser {
 
 	}
 
-	protected ShaderEffect parseShader(ResourceManager resourceManager, MinecraftClient mc, Identifier location)
+	protected PostChain parseShader(ResourceManager resourceManager, Minecraft mc, ResourceLocation location)
 			throws IOException {
-		return new ShaderEffect(mc.getTextureManager(), resourceManager, mc.getFramebuffer(), location);
+		return new PostChain(mc.getTextureManager(), resourceManager, mc.getMainRenderTarget(), location);
 	}
 
 	public void release() {
@@ -59,14 +58,14 @@ public class PostProcesser {
 	}
 
 	public void render(float tickDelta) {
-		ShaderEffect shader = this.getShaderEffect();
+		PostChain shader = this.getShaderEffect();
 
 		if (shader != null) {
 			RenderSystem.disableBlend();
 			RenderSystem.disableDepthTest();
 			RenderSystem.resetTextureMatrix();
-			shader.render(tickDelta);
-			MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
+			shader.process(tickDelta);
+			Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
 			RenderSystem.disableBlend();
 			RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 			RenderSystem.enableDepthTest();
@@ -74,7 +73,7 @@ public class PostProcesser {
 
 	}
 
-	public Identifier getLocation() {
+	public ResourceLocation getLocation() {
 		return location;
 	}
 
@@ -86,10 +85,10 @@ public class PostProcesser {
 		return this.shader != null;
 	}
 
-	public ShaderEffect getShaderEffect() {
+	public PostChain getShaderEffect() {
 
 		if (!this.isInitialized() && !this.isLoaded()) {
-			this.init(MinecraftClient.getInstance().getResourceManager());
+			this.init(Minecraft.getInstance().getResourceManager());
 		}
 
 		return this.shader;

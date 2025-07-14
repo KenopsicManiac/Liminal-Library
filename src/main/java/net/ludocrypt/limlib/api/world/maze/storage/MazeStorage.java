@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
 
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
@@ -15,9 +17,7 @@ import com.mojang.logging.LogUtils;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.Vec2i;
 import net.ludocrypt.limlib.api.world.maze.MazeGenerator;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.util.math.MathHelper;
 
 public class MazeStorage {
 
@@ -49,16 +49,16 @@ public class MazeStorage {
 			for (File data : mazeDir.listFiles((file) -> FilenameUtils.getExtension(file.getAbsolutePath()).equals("nbt"))) {
 
 				try {
-					NbtCompound region = NbtIo.readCompressed(data);
+					CompoundTag region = NbtIo.readCompressed(data);
 
 					String[] regionPosRaw = FilenameUtils.getBaseName(data.getAbsolutePath()).substring(2).split("\\.");
 					Vec2i regionPos = new Vec2i(Integer.valueOf(regionPosRaw[0]), Integer.valueOf(regionPosRaw[1])).mul(16);
 
-					for (String mid : region.getKeys()) {
+					for (String mid : region.getAllKeys()) {
 						String[] posRaw = mid.split("\\.");
 						Vec2i pos = new Vec2i(Integer.valueOf(posRaw[0]), Integer.valueOf(posRaw[1]));
 
-						NbtCompound mazeRaw = region.getCompound(mid);
+						CompoundTag mazeRaw = region.getCompound(mid);
 
 						this.generators
 							.get(id)
@@ -89,23 +89,23 @@ public class MazeStorage {
 	public void serialize(String mazeId, Vec2i pos, MazeComponent maze) {
 
 		try {
-			File regionFile = new File(new File(dir, mazeId), "m." + ((pos.getX() - MathHelper
-				.floorMod(pos.getX(), 16)) / 16) + "." + ((pos.getY() - MathHelper.floorMod(pos.getY(), 16)) / 16) + ".nbt");
+			File regionFile = new File(new File(dir, mazeId), "m." + ((pos.getX() - Mth
+				.positiveModulo(pos.getX(), 16)) / 16) + "." + ((pos.getY() - Mth.positiveModulo(pos.getY(), 16)) / 16) + ".nbt");
 
-			NbtCompound region = new NbtCompound();
+			CompoundTag region = new CompoundTag();
 
 			if (regionFile.exists()) {
 				region = NbtIo.readCompressed(regionFile);
 			}
 
-			NbtCompound compound = new NbtCompound();
-			NbtCompound mazeCompound = maze.write();
+			CompoundTag compound = new CompoundTag();
+			CompoundTag mazeCompound = maze.write();
 
 			compound.put("maze", mazeCompound);
 			compound.putInt("width", maze.width);
 			compound.putInt("height", maze.height);
 
-			region.put(MathHelper.floorMod(pos.getX(), 16) + "." + MathHelper.floorMod(pos.getY(), 16), compound);
+			region.put(Mth.positiveModulo(pos.getX(), 16) + "." + Mth.positiveModulo(pos.getY(), 16), compound);
 
 			NbtIo.writeCompressed(region, regionFile);
 

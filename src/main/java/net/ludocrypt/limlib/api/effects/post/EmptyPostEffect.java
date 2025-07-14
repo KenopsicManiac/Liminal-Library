@@ -2,8 +2,8 @@ package net.ludocrypt.limlib.api.effects.post;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.ResourceLocation;
 
-import net.minecraft.util.Identifier;
 
 public class EmptyPostEffect extends PostEffect {
 
@@ -26,7 +26,7 @@ public class EmptyPostEffect extends PostEffect {
 	}
 
 	@Override
-	public Identifier getShaderLocation() {
+	public ResourceLocation getShaderLocation() {
 		return null;
 	}
 

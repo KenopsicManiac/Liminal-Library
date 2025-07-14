@@ -3,50 +3,50 @@ package net.ludocrypt.limlib.api.effects.sky;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-import org.quiltmc.loader.api.ModInternal;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 
 import net.ludocrypt.limlib.impl.mixin.RegistriesAccessor;
-import net.minecraft.client.render.DimensionVisualEffects;
-import net.minecraft.registry.HolderLookup;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
 
 /**
- * A non-client-side clone of {@link DimensionVisualEffects}
+ * A non-client-side clone of {@link DimensionSpecialEffects}
  */
 public abstract class DimensionEffects {
 
-	public static final RegistryKey<Registry<Codec<? extends DimensionEffects>>> DIMENSION_EFFECTS_CODEC_KEY = RegistryKey
-		.ofRegistry(new Identifier("limlib/codec/dimension_effects"));
+	public static final ResourceKey<Registry<Codec<? extends DimensionEffects>>> DIMENSION_EFFECTS_CODEC_KEY = ResourceKey
+		.createRegistryKey(new ResourceLocation("limlib/codec/dimension_effects"));
 	public static final Registry<Codec<? extends DimensionEffects>> DIMENSION_EFFECTS_CODEC = RegistriesAccessor
 		.callRegisterSimple(DIMENSION_EFFECTS_CODEC_KEY, Lifecycle.stable(), (registry) -> StaticDimensionEffects.CODEC);
 	public static final Codec<DimensionEffects> CODEC = DIMENSION_EFFECTS_CODEC
-		.getCodec()
+		.byNameCodec()
 		.dispatchStable(DimensionEffects::getCodec, Function.identity());
-	public static final RegistryKey<Registry<DimensionEffects>> DIMENSION_EFFECTS_KEY = RegistryKey
-		.ofRegistry(new Identifier("limlib/dimension_effects"));
+	public static final ResourceKey<Registry<DimensionEffects>> DIMENSION_EFFECTS_KEY = ResourceKey
+		.createRegistryKey(new ResourceLocation("limlib/dimension_effects"));
 
-	@ModInternal
+//	@ModInternal
 	public static final AtomicReference<HolderLookup<DimensionEffects>> MIXIN_WORLD_LOOKUP = new AtomicReference<HolderLookup<DimensionEffects>>();
 
 	public abstract Codec<? extends DimensionEffects> getCodec();
 
 	public static void init() {
 		Registry
-			.register(DimensionEffects.DIMENSION_EFFECTS_CODEC, new Identifier("limlib", "static"),
+			.register(DimensionEffects.DIMENSION_EFFECTS_CODEC, new ResourceLocation("limlib", "static"),
 				StaticDimensionEffects.CODEC);
 		Registry
-			.register(DimensionEffects.DIMENSION_EFFECTS_CODEC, new Identifier("limlib", "empty"),
+			.register(DimensionEffects.DIMENSION_EFFECTS_CODEC, new ResourceLocation("limlib", "empty"),
 				EmptyDimensionEffects.CODEC);
 	}
 
-	@ClientOnly
-	public abstract DimensionVisualEffects getDimensionEffects();
+	@Environment(EnvType.CLIENT)
+	public abstract DimensionSpecialEffects getDimensionEffects();
 
 	public abstract float getSkyShading();
 

@@ -1,11 +1,11 @@
 package net.ludocrypt.limlib.api.world.nbt;
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 
 public interface NbtSerializer<T> {
 
-	public NbtCompound write();
+	public CompoundTag write();
 
-	public T read(NbtCompound nbt);
+	public T read(CompoundTag nbt);
 
 }

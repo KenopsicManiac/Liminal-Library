@@ -1,13 +1,12 @@
 package net.ludocrypt.limlib.api.effects.sound.reverb;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.openal.EXTEfx;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.util.Identifier;
 
 /**
  * A Reverb effect controls
@@ -145,7 +144,7 @@ public class StaticReverbEffect extends ReverbEffect {
 	}
 
 	@Override
-	public boolean shouldIgnore(Identifier identifier) {
+	public boolean shouldIgnore(ResourceLocation identifier) {
 		return identifier.getPath().contains("ui.") || identifier.getPath().contains("music.") || identifier
 			.getPath()
 			.contains("block.lava.pop") || identifier.getPath().contains("weather.") || identifier
@@ -154,67 +153,67 @@ public class StaticReverbEffect extends ReverbEffect {
 	}
 
 	@Override
-	public boolean isEnabled(MinecraftClient client, SoundInstance soundInstance) {
+	public boolean isEnabled(Minecraft client, SoundInstance soundInstance) {
 		return this.enabled;
 	}
 
 	@Override
-	public float getAirAbsorptionGainHF(MinecraftClient client, SoundInstance soundInstance) {
+	public float getAirAbsorptionGainHF(Minecraft client, SoundInstance soundInstance) {
 		return this.airAbsorptionGainHF;
 	}
 
 	@Override
-	public float getDecayHFRatio(MinecraftClient client, SoundInstance soundInstance) {
+	public float getDecayHFRatio(Minecraft client, SoundInstance soundInstance) {
 		return this.decayHFRatio;
 	}
 
 	@Override
-	public float getDensity(MinecraftClient client, SoundInstance soundInstance) {
+	public float getDensity(Minecraft client, SoundInstance soundInstance) {
 		return this.density;
 	}
 
 	@Override
-	public float getDiffusion(MinecraftClient client, SoundInstance soundInstance) {
+	public float getDiffusion(Minecraft client, SoundInstance soundInstance) {
 		return this.diffusion;
 	}
 
 	@Override
-	public float getGain(MinecraftClient client, SoundInstance soundInstance) {
+	public float getGain(Minecraft client, SoundInstance soundInstance) {
 		return this.gain;
 	}
 
 	@Override
-	public float getGainHF(MinecraftClient client, SoundInstance soundInstance) {
+	public float getGainHF(Minecraft client, SoundInstance soundInstance) {
 		return this.gainHF;
 	}
 
 	@Override
-	public float getLateReverbGainBase(MinecraftClient client, SoundInstance soundInstance) {
+	public float getLateReverbGainBase(Minecraft client, SoundInstance soundInstance) {
 		return this.lateReverbGainBase;
 	}
 
 	@Override
-	public float getDecayTime(MinecraftClient client, SoundInstance soundInstance) {
+	public float getDecayTime(Minecraft client, SoundInstance soundInstance) {
 		return this.decayTime;
 	}
 
 	@Override
-	public float getReflectionsGainBase(MinecraftClient client, SoundInstance soundInstance) {
+	public float getReflectionsGainBase(Minecraft client, SoundInstance soundInstance) {
 		return this.reflectionsGainBase;
 	}
 
 	@Override
-	public int getDecayHFLimit(MinecraftClient client, SoundInstance soundInstance) {
+	public int getDecayHFLimit(Minecraft client, SoundInstance soundInstance) {
 		return this.decayHFLimit;
 	}
 
 	@Override
-	public float getLateReverbDelay(MinecraftClient client, SoundInstance soundInstance) {
+	public float getLateReverbDelay(Minecraft client, SoundInstance soundInstance) {
 		return this.lateReverbDelay;
 	}
 
 	@Override
-	public float getReflectionsDelay(MinecraftClient client, SoundInstance soundInstance) {
+	public float getReflectionsDelay(Minecraft client, SoundInstance soundInstance) {
 		return this.reflectionsDelay;
 	}
 

@@ -1,5 +1,9 @@
 package net.ludocrypt.limlib.impl.mixin;
 
+import net.minecraft.core.HolderGetter;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -8,19 +12,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.ludocrypt.limlib.impl.access.StructureBlockBlockEntityAccess;
-import net.minecraft.block.Block;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.HolderProvider;
-import net.minecraft.structure.Structure;
 
-@Mixin(Structure.class)
+@Mixin(StructureTemplate.class)
 public class StructureMixin implements StructureBlockBlockEntityAccess {
 
 	@Unique
-	NbtCompound tags;
+	CompoundTag tags;
 
-	@Inject(method = "writeNbt", at = @At("TAIL"))
-	protected void limlib$writeNbt(NbtCompound nbt, CallbackInfoReturnable<NbtCompound> ci) {
+	@Inject(method = "save", at = @At("TAIL"))
+	protected void limlib$writeNbt(CompoundTag nbt, CallbackInfoReturnable<CompoundTag> ci) {
 
 		if (tags != null) {
 			nbt.put("limlib_tag", tags);
@@ -28,8 +28,8 @@ public class StructureMixin implements StructureBlockBlockEntityAccess {
 
 	}
 
-	@Inject(method = "readNbt", at = @At("TAIL"))
-	protected void limlib$readNbt(HolderProvider<Block> blockProvider, NbtCompound nbt, CallbackInfo ci) {
+	@Inject(method = "load", at = @At("TAIL"))
+	protected void limlib$readNbt(HolderGetter<Block> blockProvider, CompoundTag nbt, CallbackInfo ci) {
 
 		if (nbt.contains("limlib_tag")) {
 			this.tags = nbt.getCompound("limlib_tag");
@@ -38,12 +38,12 @@ public class StructureMixin implements StructureBlockBlockEntityAccess {
 	}
 
 	@Override
-	public NbtCompound getTags() {
+	public CompoundTag getTags() {
 		return tags;
 	}
 
 	@Override
-	public void setTags(NbtCompound tags) {
+	public void setTags(CompoundTag tags) {
 		this.tags = tags;
 	}
 

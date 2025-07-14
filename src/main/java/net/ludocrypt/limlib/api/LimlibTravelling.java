@@ -2,20 +2,19 @@ package net.ludocrypt.limlib.api;
 
 import java.util.Set;
 
+import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.PortalInfo;
 import org.jetbrains.annotations.ApiStatus.Internal;
-import org.quiltmc.qsl.worldgen.dimension.api.QuiltDimensions;
-
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkTicketType;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.World;
 
 public class LimlibTravelling {
 
@@ -28,43 +27,42 @@ public class LimlibTravelling {
 	@Internal
 	public static float travelingPitch = 1.0F;
 
-	public static <E extends Entity> E travelTo(E teleported, ServerWorld destination, TeleportTarget target,
-			SoundEvent sound, float volume, float pitch) {
+	public static <E extends Entity> E travelTo(E teleported, ServerLevel destination, PortalInfo target,
+												SoundEvent sound, float volume, float pitch) {
 
-		if (destination.equals(teleported.getWorld())) {
+		if (destination.equals(teleported.level())) {
 
-			BlockPos blockPos = BlockPos.create(target.position.x, target.position.y, target.position.z);
+			BlockPos blockPos = BlockPos.containing(target.pos.x, target.pos.y, target.pos.z);
 
-			if (!World.isValid(blockPos)) {
+			if (!Level.isInSpawnableBounds(blockPos)) {
 				throw new UnsupportedOperationException("Position " + blockPos.toString() + " is out of this world!");
 			}
 
-			float f = MathHelper.wrapDegrees(target.yaw);
-			float g = MathHelper.wrapDegrees(target.pitch);
+			float f = Mth.wrapDegrees(target.yRot);
+			float g = Mth.wrapDegrees(target.xRot);
 
-			if (teleported instanceof ServerPlayerEntity) {
+			if (teleported instanceof ServerPlayer player) {
 				ChunkPos chunkPos = new ChunkPos(blockPos);
-				destination.getChunkManager().addTicket(ChunkTicketType.POST_TELEPORT, chunkPos, 1, teleported.getId());
+				destination.getChunkSource().addRegionTicket(TicketType.POST_TELEPORT, chunkPos, 1, teleported.getId());
 				teleported.stopRiding();
 
-				if (((ServerPlayerEntity) teleported).isSleeping()) {
-					((ServerPlayerEntity) teleported).wakeUp(true, true);
+				if (player.isSleeping()) {
+					player.stopSleeping();
 				}
 
-				((ServerPlayerEntity) teleported).networkHandler
-					.requestTeleport(target.position.x, target.position.y, target.position.z, f, g, Set.of());
+				player.connection.teleport(target.pos.x, target.pos.y, target.pos.z, f, g, Set.of());
 
-				teleported.setHeadYaw(f);
+				teleported.setYHeadRot(f);
 			} else {
-				float h = MathHelper.clamp(g, -90.0f, 90.0f);
-				teleported.refreshPositionAndAngles(target.position.x, target.position.y, target.position.z, f, h);
-				teleported.setHeadYaw(f);
+				float h = Mth.clamp(g, -90.0f, 90.0f);
+				teleported.moveTo(target.pos.x, target.pos.y, target.pos.z, f, h);
+				teleported.setYHeadRot(f);
 			}
 
-			teleported.setVelocity(target.velocity);
+			teleported.setDeltaMovement(target.speed);
 			teleported
-				.getWorld()
-				.playSound(null, teleported.getX(), teleported.getY(), teleported.getZ(), sound, SoundCategory.AMBIENT,
+				.level()
+				.playSound(null, teleported.getX(), teleported.getY(), teleported.getZ(), sound, SoundSource.AMBIENT,
 					volume, pitch);
 
 			return teleported;
@@ -74,7 +72,7 @@ public class LimlibTravelling {
 				travelingSound = sound;
 				travelingVolume = volume;
 				travelingPitch = pitch;
-				return QuiltDimensions.teleport(teleported, destination, target);
+				return FabricDimensions.teleport(teleported, destination, target);
 			} finally {
 				travelingSound = null;
 				travelingVolume = 0.0F;

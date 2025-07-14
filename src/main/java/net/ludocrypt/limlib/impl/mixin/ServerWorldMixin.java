@@ -3,6 +3,15 @@ package net.ludocrypt.limlib.impl.mixin;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.progress.ChunkProgressListener;
+import net.minecraft.world.RandomSequences;
+import net.minecraft.world.level.CustomSpawner;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.ServerLevelData;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,35 +24,26 @@ import net.ludocrypt.limlib.api.world.maze.storage.MazeStorage;
 import net.ludocrypt.limlib.api.world.maze.storage.MazeStorageProvider;
 import net.ludocrypt.limlib.api.world.maze.storage.ServerWorldMazeAccess;
 import net.ludocrypt.limlib.api.world.nbt.NbtTags;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.WorldGenerationProgressListener;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.unmapped.C_xmjhbbku;
-import net.minecraft.world.ServerWorldProperties;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.gen.Spawner;
-import net.minecraft.world.storage.WorldSaveStorage;
 
-@Mixin(ServerWorld.class)
+@Mixin(ServerLevel.class)
 public class ServerWorldMixin implements ServerWorldMazeAccess {
 
 	@Unique
 	MazeStorage mazeStorage;
 
 	@Inject(method = "<init>", at = @At("TAIL"))
-	private void limlib$init(MinecraftServer server, Executor executor, WorldSaveStorage.Session session,
-			ServerWorldProperties worldProperties, RegistryKey<World> registryKey, DimensionOptions dimensionOptions,
-			WorldGenerationProgressListener worldGenerationProgressListener, boolean bl, long l, List<Spawner> spawners,
-			boolean shouldTickTime, @Nullable C_xmjhbbku c_xmjhbbku, CallbackInfo ci) {
+	private void limlib$init(MinecraftServer server, Executor executor, LevelStorageSource.LevelStorageAccess session,
+							 ServerLevelData worldProperties, ResourceKey<Level> registryKey, LevelStem dimensionOptions,
+							 ChunkProgressListener worldGenerationProgressListener, boolean bl, long l, List<CustomSpawner> spawners,
+							 boolean shouldTickTime, @Nullable RandomSequences randomSequences, CallbackInfo ci) {
 
-		if (dimensionOptions.getChunkGenerator() instanceof MazeStorageProvider provider) {
+		if (dimensionOptions.generator() instanceof MazeStorageProvider provider) {
 			this.mazeStorage = new MazeStorage(provider.generators(),
-				session.getWorldDirectory(registryKey).resolve("maze_region").toFile());
+				session.getDimensionPath(registryKey).resolve("maze_region").toFile());
 		}
 
-		if (dimensionOptions.getChunkGenerator() instanceof AbstractNbtChunkGenerator generator) {
+		if (dimensionOptions.generator() instanceof AbstractNbtChunkGenerator generator) {
 
 			if (generator.tags == null) {
 				generator.tags = NbtTags.parse(generator.nbtGroup, server.getResourceManager());
@@ -54,7 +54,7 @@ public class ServerWorldMixin implements ServerWorldMazeAccess {
 
 	}
 
-	@Inject(method = "saveWorld", at = @At("TAIL"))
+	@Inject(method = "saveLevelData", at = @At("TAIL"))
 	private void limlib$saveWorld(CallbackInfo ci) {
 
 		if (this.mazeStorage != null) {

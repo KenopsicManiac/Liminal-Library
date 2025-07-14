@@ -7,10 +7,10 @@ import java.util.Objects;
 import com.google.common.collect.Maps;
 
 import net.ludocrypt.limlib.api.world.nbt.NbtSerializer;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.StringRepresentable;
 
 public final class MazeComponent implements NbtSerializer<MazeComponent> {
 
@@ -66,8 +66,8 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 	}
 
 	@Override
-	public NbtCompound write() {
-		NbtCompound nbt = new NbtCompound();
+	public CompoundTag write() {
+		CompoundTag nbt = new CompoundTag();
 
 		for (int x = 0; x < width; x++) {
 
@@ -81,7 +81,7 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 	}
 
 	@Override
-	public MazeComponent read(NbtCompound nbt) {
+	public MazeComponent read(CompoundTag nbt) {
 
 		for (int x = 0; x < width; x++) {
 
@@ -97,7 +97,7 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 	/**
 	 * Describes the state of a particular room or 'cell' in a maze
 	 * <p>
-	 * 
+	 *
 	 * @param up       has wall up open
 	 * @param right    has right wall open
 	 * @param down     has wall down open
@@ -112,7 +112,7 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 		private boolean right = false;
 		private boolean down = false;
 		private boolean left = false;
-		private Map<String, NbtCompound> extra = Maps.newHashMap();
+		private Map<String, CompoundTag> extra = Maps.newHashMap();
 
 		public CellState copy() {
 			CellState newState = new CellState();
@@ -180,11 +180,11 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 			this.left = left;
 		}
 
-		public void append(String name, NbtCompound data) {
+		public void append(String name, CompoundTag data) {
 			this.extra.put(name, data);
 		}
 
-		public void appendAll(Map<String, NbtCompound> data) {
+		public void appendAll(Map<String, CompoundTag> data) {
 			this.extra.putAll(data);
 		}
 
@@ -221,7 +221,7 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 			};
 		}
 
-		public Map<String, NbtCompound> getExtra() {
+		public Map<String, CompoundTag> getExtra() {
 			return extra;
 		}
 
@@ -265,8 +265,8 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 		}
 
 		@Override
-		public NbtCompound write() {
-			NbtCompound nbt = new NbtCompound();
+		public CompoundTag write() {
+			CompoundTag nbt = new CompoundTag();
 
 			nbt.putBoolean("up", up);
 			nbt.putBoolean("down", down);
@@ -274,9 +274,9 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 			nbt.putBoolean("right", right);
 			nbt.put("pos", this.position.write());
 
-			NbtCompound extraData = new NbtCompound();
+			CompoundTag extraData = new CompoundTag();
 
-			for (Entry<String, NbtCompound> entry : extra.entrySet()) {
+			for (Entry<String, CompoundTag> entry : extra.entrySet()) {
 				extraData.put(entry.getKey(), entry.getValue());
 			}
 
@@ -286,16 +286,16 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 		}
 
 		@Override
-		public CellState read(NbtCompound nbt) {
+		public CellState read(CompoundTag nbt) {
 			this.up = nbt.getBoolean("up");
 			this.down = nbt.getBoolean("down");
 			this.left = nbt.getBoolean("left");
 			this.right = nbt.getBoolean("right");
 			this.position.read(nbt.getCompound("pos"));
 
-			NbtCompound extraData = nbt.getCompound("extra");
+			CompoundTag extraData = nbt.getCompound("extra");
 
-			for (String key : extraData.getKeys()) {
+			for (String key : extraData.getAllKeys()) {
 				this.extra.put(key, extraData.getCompound(key));
 			}
 
@@ -428,8 +428,8 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 		}
 
 		@Override
-		public NbtCompound write() {
-			NbtCompound nbt = new NbtCompound();
+		public CompoundTag write() {
+			CompoundTag nbt = new CompoundTag();
 
 			nbt.putInt("x", x);
 			nbt.putInt("y", y);
@@ -438,7 +438,7 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 		}
 
 		@Override
-		public Vec2i read(NbtCompound nbt) {
+		public Vec2i read(CompoundTag nbt) {
 			this.x = nbt.getInt("x");
 			this.y = nbt.getInt("y");
 
@@ -447,7 +447,7 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 
 	}
 
-	public static enum Face implements StringIdentifiable {
+	public static enum Face implements StringRepresentable {
 
 		UP("up"),
 		DOWN("down"),
@@ -482,7 +482,8 @@ public final class MazeComponent implements NbtSerializer<MazeComponent> {
 			return clockwise().clockwise().clockwise();
 		}
 
-		public String asString() {
+		@Override
+		public String getSerializedName() {
 			return name;
 		}
 

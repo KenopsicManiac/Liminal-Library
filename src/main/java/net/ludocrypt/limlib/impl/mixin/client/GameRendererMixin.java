@@ -3,6 +3,11 @@ package net.ludocrypt.limlib.impl.mixin.client;
 import java.util.Optional;
 import java.util.function.Function;
 
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,28 +21,23 @@ import net.ludocrypt.limlib.api.effects.LookupGrabber;
 import net.ludocrypt.limlib.api.effects.post.PostEffect;
 import net.ludocrypt.limlib.impl.shader.PostProcesser;
 import net.ludocrypt.limlib.impl.shader.PostProcesserManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
 
 	@Shadow
 	@Final
-	private MinecraftClient client;
+	private Minecraft minecraft;
 
 	@Unique
-	private final Function<Identifier, PostProcesser> memoizedShaders = Util
-		.memoize(id -> PostProcesserManager.INSTANCE.find(id));
+	private final Function<ResourceLocation, PostProcesser> memoizedShaders = Util
+		.memoize(PostProcesserManager.INSTANCE::find);
 
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;drawEntityOutlinesFramebuffer()V", shift = Shift.AFTER))
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;doEntityOutline()V", shift = Shift.AFTER))
 	private void limlib$render(float tickDelta, long nanoTime, boolean renderLevel, CallbackInfo info) {
 		Optional<PostEffect> optionalPostEffect = LookupGrabber
-			.snatch(client.world.getRegistryManager().getLookup(PostEffect.POST_EFFECT_KEY).get(),
-				RegistryKey.of(PostEffect.POST_EFFECT_KEY, client.world.getRegistryKey().getValue()));
+			.snatch(minecraft.level.registryAccess().lookup(PostEffect.POST_EFFECT_KEY).get(),
+				ResourceKey.create(PostEffect.POST_EFFECT_KEY, minecraft.level.dimension().location()));
 
 		if (optionalPostEffect.isPresent()) {
 			PostEffect postEffect = optionalPostEffect.get();

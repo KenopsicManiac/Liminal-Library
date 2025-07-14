@@ -1,9 +1,5 @@
 package net.ludocrypt.limlib.api.world.chunk;
 
-import java.util.Optional;
-
-import org.apache.logging.log4j.util.TriConsumer;
-
 import net.ludocrypt.limlib.api.world.LimlibHelper;
 import net.ludocrypt.limlib.api.world.Manipulation;
 import net.ludocrypt.limlib.api.world.nbt.FunctionMap;
@@ -11,31 +7,34 @@ import net.ludocrypt.limlib.api.world.nbt.NbtGroup;
 import net.ludocrypt.limlib.api.world.nbt.NbtPlacerUtil;
 import net.ludocrypt.limlib.api.world.nbt.NbtPlacerUtil.Bound;
 import net.ludocrypt.limlib.api.world.nbt.NbtTags;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.LootableContainerBlockEntity;
-import net.minecraft.loot.LootTables;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.biome.source.BiomeSource;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import org.apache.logging.log4j.util.TriConsumer;
+
+import java.util.Optional;
 
 public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
 	public final NbtGroup nbtGroup;
-	public final FunctionMap<Identifier, NbtPlacerUtil, ResourceManager> structures;
+	public final FunctionMap<ResourceLocation, NbtPlacerUtil, ResourceManager> structures;
 	public NbtTags tags;
 
 	public AbstractNbtChunkGenerator(BiomeSource biomeSource, NbtGroup nbtGroup) {
-		this(biomeSource, nbtGroup, new FunctionMap<Identifier, NbtPlacerUtil, ResourceManager>(NbtPlacerUtil::load));
+		this(biomeSource, nbtGroup, new FunctionMap<ResourceLocation, NbtPlacerUtil, ResourceManager>(NbtPlacerUtil::load));
 	}
 
 	public AbstractNbtChunkGenerator(BiomeSource biomeSource, NbtGroup nbtGroup,
-			FunctionMap<Identifier, NbtPlacerUtil, ResourceManager> structures) {
+			FunctionMap<ResourceLocation, NbtPlacerUtil, ResourceManager> structures) {
 		super(biomeSource);
 		this.nbtGroup = nbtGroup;
 		this.structures = structures;
@@ -44,11 +43,11 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
 	public abstract void loadTags();
 
-	public void generateNbt(ChunkRegion region, BlockPos at, Identifier id) {
+	public void generateNbt(WorldGenRegion region, BlockPos at, ResourceLocation id) {
 		generateNbt(region, at, id, Manipulation.NONE);
 	}
 
-	public void generateNbt(ChunkRegion region, BlockPos at, Identifier id, Manipulation manipulation) {
+	public void generateNbt(WorldGenRegion region, BlockPos at, ResourceLocation id, Manipulation manipulation) {
 
 		try {
 			structures
@@ -63,8 +62,8 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
 	}
 
-	public void generateNbt(ChunkRegion region, BlockPos at, Identifier id, Manipulation manipulation,
-			TriConsumer<BlockPos, BlockState, Optional<NbtCompound>> consumer) {
+	public void generateNbt(WorldGenRegion region, BlockPos at, ResourceLocation id, Manipulation manipulation,
+			TriConsumer<BlockPos, BlockState, Optional<CompoundTag>> consumer) {
 
 		try {
 			structures
@@ -79,11 +78,11 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
 	}
 
-	public void generateNbt(ChunkRegion region, BlockPos offset, BlockPos from, Bound to, Identifier id) {
+	public void generateNbt(WorldGenRegion region, BlockPos offset, BlockPos from, Bound to, ResourceLocation id) {
 		generateNbt(region, offset, from, to, id, Manipulation.NONE);
 	}
 
-	public void generateNbt(ChunkRegion region, BlockPos offset, BlockPos from, Bound to, Identifier id,
+	public void generateNbt(WorldGenRegion region, BlockPos offset, BlockPos from, Bound to, ResourceLocation id,
 			Manipulation manipulation) {
 
 		try {
@@ -99,8 +98,8 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
 	}
 
-	public void generateNbt(ChunkRegion region, BlockPos offset, BlockPos from, Bound to, Identifier id,
-			Manipulation manipulation, TriConsumer<BlockPos, BlockState, Optional<NbtCompound>> consumer) {
+	public void generateNbt(WorldGenRegion region, BlockPos offset, BlockPos from, Bound to, ResourceLocation id,
+			Manipulation manipulation, TriConsumer<BlockPos, BlockState, Optional<CompoundTag>> consumer) {
 
 		try {
 			structures
@@ -115,32 +114,32 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
 	}
 
-	protected void modifyStructure(ChunkRegion region, BlockPos pos, BlockState state,
-			Optional<NbtCompound> blockEntityNbt) {
-		this.modifyStructure(region, pos, state, blockEntityNbt, Block.NOTIFY_ALL, 1);
+	protected void modifyStructure(WorldGenRegion region, BlockPos pos, BlockState state,
+			Optional<CompoundTag> blockEntityNbt) {
+		this.modifyStructure(region, pos, state, blockEntityNbt, Block.UPDATE_ALL, 1);
 	}
 
-	protected void modifyStructure(ChunkRegion region, BlockPos pos, BlockState state, Optional<NbtCompound> blockEntityNbt,
+	protected void modifyStructure(WorldGenRegion region, BlockPos pos, BlockState state, Optional<CompoundTag> blockEntityNbt,
 			int update, int depth) {
 
-		if (state.isOf(Blocks.STRUCTURE_VOID)) {
+		if (state.is(Blocks.STRUCTURE_VOID)) {
 			return;
 		}
 
-		region.setBlockState(pos, state, update, depth);
+		region.setBlock(pos, state, update, depth);
 
 		if (blockEntityNbt.isPresent()) {
 			BlockEntity blockEntity = region.getBlockEntity(pos);
 
 			if (blockEntity != null) {
 
-				if (state.isOf(blockEntity.getCachedState().getBlock())) {
-					blockEntity.readNbt(blockEntityNbt.get());
+				if (state.is(blockEntity.getBlockState().getBlock())) {
+					blockEntity.load(blockEntityNbt.get());
 				}
 
 			}
 
-			if (blockEntity instanceof LootableContainerBlockEntity lootTable) {
+			if (blockEntity instanceof RandomizableContainerBlockEntity lootTable) {
 				lootTable
 					.setLootTable(this.getContainerLootTable(lootTable), region.getSeed() + LimlibHelper.blockSeed(pos));
 			}
@@ -149,11 +148,11 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
 	}
 
-	protected Identifier getContainerLootTable(LootableContainerBlockEntity container) {
-		return LootTables.SIMPLE_DUNGEON_CHEST;
+	protected ResourceLocation getContainerLootTable(RandomizableContainerBlockEntity container) {
+		return BuiltInLootTables.SIMPLE_DUNGEON;
 	}
 
-	protected NbtCompound modifyEntity(ChunkRegion region, NbtCompound nbt) {
+	protected CompoundTag modifyEntity(WorldGenRegion region, CompoundTag nbt) {
 		return nbt;
 	}
 

@@ -2,6 +2,14 @@ package net.ludocrypt.limlib.impl.mixin.client;
 
 import java.util.Optional;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,38 +21,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.ludocrypt.limlib.api.effects.LookupGrabber;
 import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.impl.bridge.IrisBridge;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.LightmapTextureManager;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.registry.RegistryKey;
 
-@Mixin(value = WorldRenderer.class, priority = 1050)
+@Mixin(value = LevelRenderer.class, priority = 1050)
 public abstract class WorldRendererAfterMixin {
 
 	@Shadow
 	@Final
-	private MinecraftClient client;
+	private Minecraft minecraft;
 
-	@Inject(method = "Lnet/minecraft/client/render/WorldRenderer;render(Lnet/minecraft/client/util/math/MatrixStack;FJZLnet/minecraft/client/render/Camera;Lnet/minecraft/client/render/GameRenderer;Lnet/minecraft/client/render/LightmapTextureManager;Lorg/joml/Matrix4f;)V", at = @At(value = "RETURN", shift = At.Shift.BEFORE))
-	private void limlib$render$clear(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline,
-			Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f positionMatrix,
-			CallbackInfo ci) {
+	@Inject(method = "renderLevel", at = @At(value = "RETURN", shift = At.Shift.BEFORE))
+	private void limlib$render$clear(PoseStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline,
+									 Camera camera, GameRenderer gameRenderer, LightTexture lightmapTextureManager, Matrix4f positionMatrix,
+									 CallbackInfo ci) {
 
 		if (IrisBridge.IRIS_LOADED) {
 
 			if (IrisBridge.areShadersInUse()) {
-				MinecraftClient client = MinecraftClient.getInstance();
-
 				Optional<Skybox> sky = LookupGrabber
-					.snatch(client.world.getRegistryManager().getLookup(Skybox.SKYBOX_KEY).get(),
-						RegistryKey.of(Skybox.SKYBOX_KEY, client.world.getRegistryKey().getValue()));
+					.snatch(minecraft.level.registryAccess().lookup(Skybox.SKYBOX_KEY).get(),
+						ResourceKey.create(Skybox.SKYBOX_KEY, minecraft.level.dimension().location()));
 
-				if (sky.isPresent()) {
-					sky.get().renderSky(((WorldRenderer) (Object) this), client, matrices, positionMatrix, tickDelta);
-				}
+				sky.ifPresent(skybox -> skybox.renderSky(((LevelRenderer) (Object) this), minecraft, matrices, positionMatrix, tickDelta));
 
 			}
 

@@ -3,19 +3,19 @@ package net.ludocrypt.limlib.api.effects.post;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class StaticPostEffect extends PostEffect {
 
 	public static final Codec<StaticPostEffect> CODEC = RecordCodecBuilder.create((instance) -> {
-		return instance.group(Identifier.CODEC.fieldOf("shader_name").stable().forGetter((postEffect) -> {
+		return instance.group(ResourceLocation.CODEC.fieldOf("shader_name").stable().forGetter((postEffect) -> {
 			return postEffect.shaderName;
 		})).apply(instance, instance.stable(StaticPostEffect::new));
 	});
 
-	private final Identifier shaderName;
+	private final ResourceLocation shaderName;
 
-	public StaticPostEffect(Identifier shaderLocation) {
+	public StaticPostEffect(ResourceLocation shaderLocation) {
 		this.shaderName = shaderLocation;
 	}
 
@@ -35,8 +35,8 @@ public class StaticPostEffect extends PostEffect {
 	}
 
 	@Override
-	public Identifier getShaderLocation() {
-		return new Identifier(shaderName.getNamespace(), "shaders/post/" + shaderName.getPath() + ".json");
+	public ResourceLocation getShaderLocation() {
+		return new ResourceLocation(shaderName.getNamespace(), "shaders/post/" + shaderName.getPath() + ".json");
 	}
 
 }

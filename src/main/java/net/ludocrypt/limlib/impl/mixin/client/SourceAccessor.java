@@ -1,14 +1,13 @@
 package net.ludocrypt.limlib.impl.mixin.client;
 
+import com.mojang.blaze3d.audio.Channel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.client.sound.Source;
-
-@Mixin(Source.class)
+@Mixin(Channel.class)
 public interface SourceAccessor {
 
 	@Accessor
-	int getPointer();
+	int getSource();
 
 }

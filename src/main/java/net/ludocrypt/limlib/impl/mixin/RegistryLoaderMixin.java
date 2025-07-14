@@ -5,6 +5,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.WritableRegistry;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.*;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -33,61 +44,47 @@ import net.ludocrypt.limlib.api.effects.sky.DimensionEffects;
 import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
 import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.impl.SaveStorageSupplier;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.HolderProvider;
-import net.minecraft.registry.MutableRegistry;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryLoader;
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.registry.ResourceFileNamespace;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.dimension.DimensionType;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-@Mixin(RegistryLoader.class)
+@Mixin(RegistryDataLoader.class)
 public class RegistryLoaderMixin {
 
 	@Shadow
 	@Final
 	@Mutable
-	public static List<RegistryLoader.DecodingData<?>> WORLDGEN_REGISTRIES;
+	public static List<RegistryDataLoader.RegistryData<?>> WORLDGEN_REGISTRIES;
 	static {
-		List<RegistryLoader.DecodingData<?>> newRegistries = Lists.newArrayList();
+		List<RegistryDataLoader.RegistryData<?>> newRegistries = Lists.newArrayList();
 		newRegistries.addAll(WORLDGEN_REGISTRIES);
-		newRegistries.add(new RegistryLoader.DecodingData(PostEffect.POST_EFFECT_KEY, PostEffect.CODEC));
-		newRegistries.add(new RegistryLoader.DecodingData(DimensionEffects.DIMENSION_EFFECTS_KEY, DimensionEffects.CODEC));
-		newRegistries.add(new RegistryLoader.DecodingData(SoundEffects.SOUND_EFFECTS_KEY, SoundEffects.CODEC));
-		newRegistries.add(new RegistryLoader.DecodingData(Skybox.SKYBOX_KEY, Skybox.CODEC));
+		newRegistries.add(new RegistryDataLoader.RegistryData(PostEffect.POST_EFFECT_KEY, PostEffect.CODEC));
+		newRegistries.add(new RegistryDataLoader.RegistryData(DimensionEffects.DIMENSION_EFFECTS_KEY, DimensionEffects.CODEC));
+		newRegistries.add(new RegistryDataLoader.RegistryData(SoundEffects.SOUND_EFFECTS_KEY, SoundEffects.CODEC));
+		newRegistries.add(new RegistryDataLoader.RegistryData(Skybox.SKYBOX_KEY, Skybox.CODEC));
 		WORLDGEN_REGISTRIES = newRegistries;
 	}
 
-	@Inject(method = "loadRegistryContents(Lnet/minecraft/registry/RegistryOps$RegistryInfoLookup;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/registry/MutableRegistry;Lcom/mojang/serialization/Decoder;Ljava/util/Map;)V", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Decoder;parse(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;", shift = Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
+	@Inject(method = "loadRegistryContents", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Decoder;parse(Lcom/mojang/serialization/DynamicOps;Ljava/lang/Object;)Lcom/mojang/serialization/DataResult;", shift = Shift.BEFORE), locals = LocalCapture.CAPTURE_FAILHARD)
 	private static <E> void limlib$loadRegistryContents(RegistryOps.RegistryInfoLookup infoLookup,
-			ResourceManager resourceManager, RegistryKey<? extends Registry<E>> registryKey, MutableRegistry<E> registry,
-			Decoder<E> decoder, Map<RegistryKey<?>, Exception> readFailures, CallbackInfo ci, String string,
-			ResourceFileNamespace resourceFileNamespace, RegistryOps<JsonElement> registryOps,
-			Iterator<Map.Entry<Identifier, Resource>> var9, Map.Entry<Identifier, Resource> entry, Identifier identifier,
-			RegistryKey<E> registryKey2, Resource resource, Reader reader, JsonElement jsonElement) {
+														ResourceManager resourceManager, ResourceKey<? extends Registry<E>> registryKey, WritableRegistry<E> registry,
+														Decoder<E> decoder, Map<ResourceKey<?>, Exception> readFailures, CallbackInfo ci, String string,
+														FileToIdConverter resourceFileNamespace, RegistryOps<JsonElement> registryOps,
+														Iterator<Map.Entry<ResourceLocation, Resource>> var9, Map.Entry<ResourceLocation, Resource> entry, ResourceLocation identifier,
+														ResourceKey<E> registryKey2, Resource resource, Reader reader, JsonElement jsonElement) {
 
-		if (registryKey2.isOf(RegistryKeys.GENERATOR_TYPE)) {
+		if (registryKey2.isFor(Registries.WORLD_PRESET)) {
 			JsonObject presetType = jsonElement.getAsJsonObject();
 			JsonObject dimensions = presetType.get("dimensions").getAsJsonObject();
 			LimlibWorld.LIMLIB_WORLD
-				.getEntries()
+				.entrySet()
 				.forEach((world) -> dimensions
-					.add(world.getKey().getValue().toString(),
-						DimensionOptions.CODEC
+					.add(world.getKey().location().toString(),
+						LevelStem.CODEC
 							.encodeStart(registryOps,
 								world.getValue().getDimensionOptionsSupplier().apply(new RegistryProvider() {
 
 									@Override
-									public <T> HolderProvider<T> get(RegistryKey<Registry<T>> key) {
-										return registryOps.getHolderProvider(key).get();
+									public <T> HolderGetter<T> get(ResourceKey<Registry<T>> key) {
+										return registryOps.getter(key).get();
 									}
 
 								}))
@@ -101,16 +98,16 @@ public class RegistryLoaderMixin {
 				.register(infoLookup, registryKey, registryOps, jsonElement)));
 	}
 
-	@Inject(method = "loadRegistryContents(Lnet/minecraft/registry/RegistryOps$RegistryInfoLookup;Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/registry/RegistryKey;Lnet/minecraft/registry/MutableRegistry;Lcom/mojang/serialization/Decoder;Ljava/util/Map;)V", at = @At("TAIL"))
+	@Inject(method = "loadRegistryContents", at = @At("TAIL"))
 	private static <E> void limlib$loadRegistryContents(RegistryOps.RegistryInfoLookup infoLookup,
-			ResourceManager resourceManager, RegistryKey<? extends Registry<E>> registryKey, MutableRegistry<E> registry,
-			Decoder<E> decoder, Map<RegistryKey<?>, Exception> readFailures, CallbackInfo ci) {
+			ResourceManager resourceManager, ResourceKey<? extends Registry<E>> registryKey, WritableRegistry<E> registry,
+			Decoder<E> decoder, Map<ResourceKey<?>, Exception> readFailures, CallbackInfo ci) {
 
-		if (registryKey.equals(RegistryKeys.DIMENSION_TYPE)) {
+		if (registryKey.equals(Registries.DIMENSION_TYPE)) {
 			LimlibWorld.LIMLIB_WORLD
-				.getEntries()
-				.forEach((world) -> ((MutableRegistry<DimensionType>) registry)
-					.register(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, world.getKey().getValue()),
+				.entrySet()
+				.forEach((world) -> ((WritableRegistry<DimensionType>) registry)
+					.register(ResourceKey.create(Registries.DIMENSION_TYPE, world.getKey().location()),
 						world.getValue().getDimensionTypeSupplier().get(), Lifecycle.stable()));
 		}
 
@@ -119,10 +116,10 @@ public class RegistryLoaderMixin {
 			.forEach((registrarhook -> ((LimlibRegistryHook<E>) registrarhook).register(infoLookup, registryKey, registry)));
 	}
 
-	@Inject(method = "loadRegistriesIntoManager(Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/registry/DynamicRegistryManager;Ljava/util/List;)Lnet/minecraft/registry/DynamicRegistryManager$Frozen;", at = @At("TAIL"))
+	@Inject(method = "load", at = @At("TAIL"))
 	private static void limlib$loadRegistriesIntoManager(ResourceManager resourceManager,
-			DynamicRegistryManager registryManager, List<RegistryLoader.DecodingData<?>> decodingData,
-			CallbackInfoReturnable<DynamicRegistryManager.Frozen> ci) {
+														 RegistryAccess registryManager, List<RegistryDataLoader.RegistryData<?>> decodingData,
+														 CallbackInfoReturnable<RegistryAccess.Frozen> ci) {
 		SaveStorageSupplier.LOADED_REGISTRY.set(registryManager.freeze());
 	}
 
