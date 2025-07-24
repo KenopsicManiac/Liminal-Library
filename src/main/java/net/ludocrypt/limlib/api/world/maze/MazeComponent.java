@@ -2,12 +2,10 @@ package net.ludocrypt.limlib.api.world.maze;
 
 import java.util.Map;
 import java.util.Objects;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
 import com.google.common.collect.Maps;
-
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 
 public abstract class MazeComponent {
 
@@ -109,7 +107,7 @@ public abstract class MazeComponent {
 		private boolean right = false;
 		private boolean down = false;
 		private boolean left = false;
-		private Map<String, NbtCompound> extra = Maps.newHashMap();
+		private Map<String, CompoundTag> extra = Maps.newHashMap();
 
 		public CellState copy() {
 			CellState newState = new CellState();
@@ -177,11 +175,11 @@ public abstract class MazeComponent {
 			this.left = left;
 		}
 
-		public void append(String name, NbtCompound data) {
+		public void append(String name, CompoundTag data) {
 			this.extra.put(name, data);
 		}
 
-		public void appendAll(Map<String, NbtCompound> data) {
+		public void appendAll(Map<String, CompoundTag> data) {
 			this.extra.putAll(data);
 		}
 
@@ -218,7 +216,7 @@ public abstract class MazeComponent {
 			};
 		}
 
-		public Map<String, NbtCompound> getExtra() {
+		public Map<String, CompoundTag> getExtra() {
 			return extra;
 		}
 

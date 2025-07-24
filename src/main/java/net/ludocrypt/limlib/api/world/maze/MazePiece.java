@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 
 import net.ludocrypt.limlib.api.world.Manipulation;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.CellState;
-import net.minecraft.util.random.RandomGenerator;
+import net.minecraft.util.RandomSource;
 
 public enum MazePiece {
 
@@ -35,7 +35,7 @@ public enum MazePiece {
 	 * L is assumed to go up, left. I is assumed to go up, down. N is assumed to go
 	 * up.
 	 */
-	public static Pair<MazePiece, Manipulation> getFromCell(CellState state, RandomGenerator random) {
+	public static Pair<MazePiece, Manipulation> getFromCell(CellState state, RandomSource random) {
 
 		MazePiece piece = MazePiece.E;
 		Manipulation[] options = new Manipulation[] { Manipulation.NONE };

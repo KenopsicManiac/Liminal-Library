@@ -1,26 +1,26 @@
 package net.ludocrypt.limlib.impl.mixin;
 
+import net.minecraft.data.worldgen.BootstrapContext;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.ludocrypt.limlib.api.LimlibWorld;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.world.dimension.BuiltinDimensionTypes;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.BootstrapContext;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.worldgen.DimensionTypes;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.DimensionType;
 
-@Mixin(BuiltinDimensionTypes.class)
+@Mixin(DimensionTypes.class)
 public class BuiltinDimensionTypesMixin {
 
-	@Inject(method = "bootstrap(Lnet/minecraft/world/gen/BootstrapContext;)V", at = @At("RETURN"))
+	@Inject(method = "bootstrap", at = @At("RETURN"))
 	private static void limlib$initAndGetDefault(BootstrapContext<DimensionType> bootstrapContext, CallbackInfo ci) {
 		LimlibWorld.LIMLIB_WORLD
-			.getEntries()
+			.entrySet()
 			.forEach((entry) -> bootstrapContext
-				.register(RegistryKey.of(RegistryKeys.DIMENSION_TYPE, entry.getKey().getValue()),
+				.register(ResourceKey.create(Registries.DIMENSION_TYPE, entry.getKey().location()),
 					entry.getValue().getDimensionTypeSupplier().get()));
 	}
 

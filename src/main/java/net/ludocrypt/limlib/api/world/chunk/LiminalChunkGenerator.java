@@ -1,56 +1,46 @@
 package net.ludocrypt.limlib.api.world.chunk;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
 
-import com.mojang.datafixers.util.Either;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructureManager;
-import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.Heightmap.Type;
-import net.minecraft.world.biome.GenerationSettings;
-import net.minecraft.world.biome.source.BiomeAccess;
-import net.minecraft.world.biome.source.BiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.GenerationStep.Carver;
-import net.minecraft.world.gen.RandomState;
-import net.minecraft.world.gen.chunk.Blender;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.VerticalBlockSample;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.NoiseColumn;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.GenerationStep.Carving;
+import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
 
 public abstract class LiminalChunkGenerator extends ChunkGenerator {
 
 	public LiminalChunkGenerator(BiomeSource biomeSource) {
-		super(biomeSource, (biome) -> GenerationSettings.INSTANCE);
+		super(biomeSource, (biome) -> BiomeGenerationSettings.EMPTY);
 	}
 
 	@Override
-	public void carve(ChunkRegion chunkRegion, long seed, RandomState randomState, BiomeAccess biomeAccess,
-			StructureManager structureManager, Chunk chunk, Carver generationStep) {
+	public void applyCarvers(WorldGenRegion chunkRegion, long seed, RandomState randomState, BiomeManager biomeAccess,
+			StructureManager structureManager, ChunkAccess chunk, Carving generationStep) {
 	}
 
 	@Override
-	public void buildSurface(ChunkRegion region, StructureManager structureManager, RandomState randomState, Chunk chunk) {
+	public void buildSurface(WorldGenRegion region, StructureManager structureManager, RandomState randomState, ChunkAccess chunk) {
 	}
 
 	@Override
-	public void populateEntities(ChunkRegion region) {
+	public void spawnOriginalMobs(WorldGenRegion region) {
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateNoise(Executor executor, Blender blender, RandomState randomState,
-			StructureManager structureManager, Chunk chunk) {
-		throw new UnsupportedOperationException("Vanilla populateNoise should never be called in LiminalChunkGenerator");
+	public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunkAccess) {
+		throw new UnsupportedOperationException("Vanilla fillFromNoise should never be called in LiminalChunkGenerator");
 	}
 
 	/**
@@ -66,11 +56,9 @@ public abstract class LiminalChunkGenerator extends ChunkGenerator {
 	 * ChunkRegion as opposed to world when setting blocks, as it allows you to
 	 * extend through multiple chunks in {@link getPlacementRadius} away.
 	 */
-	public abstract CompletableFuture<Chunk> populateNoise(ChunkRegion chunkRegion, ChunkStatus targetStatus,
-			Executor executor, ServerWorld world, ChunkGenerator generator,
-			StructureTemplateManager structureTemplateManager, ServerLightingProvider lightingProvider,
-			Function<Chunk, CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>>> fullChunkConverter, List<Chunk> chunks,
-			Chunk chunk);
+	public abstract CompletableFuture<ChunkAccess> populateNoise(WorldGenRegion chunkRegion,
+																 ServerLevel world, ChunkGenerator generator,
+																 ChunkAccess chunk);
 
 	@Override
 	public int getSeaLevel() {
@@ -78,24 +66,24 @@ public abstract class LiminalChunkGenerator extends ChunkGenerator {
 	}
 
 	@Override
-	public int getMinimumY() {
+	public int getMinY() {
 		return 0;
 	}
 
 	@Override
-	public int getHeight(int x, int z, Type heightmap, HeightLimitView world, RandomState randomState) {
-		return this.getWorldHeight();
+	public int getBaseHeight(int x, int z, Types heightmap, LevelHeightAccessor world, RandomState randomState) {
+		return this.getGenDepth();
 	}
 
 	@Override
-	public VerticalBlockSample getColumnSample(int x, int y, HeightLimitView world, RandomState random) {
+	public NoiseColumn getBaseColumn(int x, int y, LevelHeightAccessor world, RandomState random) {
 		BlockState[] states = new BlockState[world.getHeight()];
 
 		for (int i = 0; i < states.length; i++) {
-			states[i] = Blocks.AIR.getDefaultState();
+			states[i] = Blocks.AIR.defaultBlockState();
 		}
 
-		return new VerticalBlockSample(0, states);
+		return new NoiseColumn(0, states);
 	}
 
 }

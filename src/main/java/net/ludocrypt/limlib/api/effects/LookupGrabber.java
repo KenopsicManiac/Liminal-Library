@@ -1,15 +1,14 @@
 package net.ludocrypt.limlib.api.effects;
 
 import java.util.Optional;
-
-import net.minecraft.registry.Holder;
-import net.minecraft.registry.HolderLookup;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 
 public class LookupGrabber {
 
-	public static <T> Optional<T> snatch(HolderLookup<T> lookup, RegistryKey<T> key) {
-		Optional<Holder.Reference<T>> holderOptional = lookup.getHolder(key);
+	public static <T> Optional<T> snatch(HolderLookup<T> lookup, ResourceKey<T> key) {
+		Optional<Holder.Reference<T>> holderOptional = lookup.get(key);
 
 		if (holderOptional.isPresent()) {
 			Holder.Reference<T> holder = holderOptional.get();

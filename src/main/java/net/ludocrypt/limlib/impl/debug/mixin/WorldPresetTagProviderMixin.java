@@ -8,27 +8,27 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.ludocrypt.limlib.impl.debug.DebugWorld;
-import net.minecraft.client.world.GeneratorType;
-import net.minecraft.data.DataPackOutput;
-import net.minecraft.data.server.tag.AbstractTagProvider;
-import net.minecraft.data.server.tag.WorldPresetTagProvider;
-import net.minecraft.registry.HolderLookup;
-import net.minecraft.registry.HolderLookup.Provider;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.tag.WorldPresetTags;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.Registry;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.data.tags.WorldPresetTagsProvider;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.WorldPresetTags;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
 
-@Mixin(WorldPresetTagProvider.class)
-public abstract class WorldPresetTagProviderMixin extends AbstractTagProvider<GeneratorType> {
+@Mixin(WorldPresetTagsProvider.class)
+public abstract class WorldPresetTagProviderMixin extends TagsProvider<WorldPreset> {
 
-	protected WorldPresetTagProviderMixin(DataPackOutput output, RegistryKey<? extends Registry<GeneratorType>> key,
+	protected WorldPresetTagProviderMixin(PackOutput output, ResourceKey<? extends Registry<WorldPreset>> key,
 			CompletableFuture<Provider> lookupProvider) {
 		super(output, key, lookupProvider);
 	}
 
-	@Inject(method = "configure", at = @At("TAIL"))
-	protected void limlib$configure(HolderLookup.Provider lookup, CallbackInfo ci) {
-		this.getOrCreateTagBuilder(WorldPresetTags.EXTENDED).add(DebugWorld.DEBUG_KEY);
+	@Inject(method = "addTags", at = @At("TAIL"))
+	protected void limlib$configure(Provider lookup, CallbackInfo ci) {
+		this.tag(WorldPresetTags.EXTENDED).add(DebugWorld.DEBUG_KEY);
 	}
 
 }

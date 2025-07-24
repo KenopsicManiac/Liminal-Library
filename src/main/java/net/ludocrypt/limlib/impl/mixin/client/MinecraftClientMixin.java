@@ -1,5 +1,6 @@
 package net.ludocrypt.limlib.impl.mixin.client;
 
+import com.mojang.blaze3d.platform.Window;
 import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Final;
@@ -9,41 +10,38 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import com.mojang.blaze3d.glfw.Window;
-
 import net.ludocrypt.limlib.api.effects.LookupGrabber;
 import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
 import net.ludocrypt.limlib.impl.shader.PostProcesserManager;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.sound.MusicSound;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.Music;
 
-@Mixin(MinecraftClient.class)
+@Mixin(Minecraft.class)
 public class MinecraftClientMixin {
 
 	@Shadow
-	public ClientPlayerEntity player;
+	public LocalPlayer player;
 
 	@Shadow
-	public ClientWorld world;
+	public ClientLevel level;
 
 	@Final
 	@Shadow
 	private Window window;
 
-	@Inject(method = "getMusic", at = @At("HEAD"), cancellable = true)
-	private void limlib$getMusic(CallbackInfoReturnable<MusicSound> ci) {
+	@Inject(method = "getSituationalMusic", at = @At("HEAD"), cancellable = true)
+	private void limlib$getMusic(CallbackInfoReturnable<Music> ci) {
 
 		if (this.player != null) {
 			Optional<SoundEffects> soundEffects = LookupGrabber
-				.snatch(world.getRegistryManager().getLookup(SoundEffects.SOUND_EFFECTS_KEY).get(),
-					RegistryKey.of(SoundEffects.SOUND_EFFECTS_KEY, world.getRegistryKey().getValue()));
+				.snatch(level.registryAccess().lookup(SoundEffects.SOUND_EFFECTS_KEY).get(),
+					ResourceKey.create(SoundEffects.SOUND_EFFECTS_KEY, level.dimension().location()));
 
 			if (soundEffects.isPresent()) {
-				Optional<MusicSound> musicSound = soundEffects.get().getMusic();
+				Optional<Music> musicSound = soundEffects.get().getMusic();
 
 				if (musicSound.isPresent()) {
 					ci.setReturnValue(musicSound.get());
@@ -55,10 +53,10 @@ public class MinecraftClientMixin {
 
 	}
 
-	@Inject(method = "onResolutionChanged", at = @At("RETURN"))
+	@Inject(method = "resizeDisplay", at = @At("RETURN"))
 	private void limlib$onResolutionChanged(CallbackInfo info) {
 		PostProcesserManager.INSTANCE
-			.onResolutionChanged(this.window.getFramebufferWidth(), this.window.getFramebufferHeight());
+			.onResolutionChanged(this.window.getWidth(), this.window.getHeight());
 	}
 
 }

@@ -1,67 +1,57 @@
 package net.ludocrypt.limlib.impl.debug;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.function.Function;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.ludocrypt.limlib.api.world.NbtGroup;
 import net.ludocrypt.limlib.api.world.NbtPlacerUtil;
 import net.ludocrypt.limlib.api.world.chunk.AbstractNbtChunkGenerator;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.StructureBlock;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.StructureBlockBlockEntity;
-import net.minecraft.block.enums.StructureBlockMode;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Holder;
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.server.world.ChunkHolder.Unloaded;
-import net.minecraft.server.world.ServerLightingProvider;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.StructureTemplateManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.ChunkRegion;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
-import net.minecraft.world.biome.source.FixedBiomeSource;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.gen.RandomState;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Vec3i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StructureBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.StructureMode;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
 
 public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 
-	public static final Codec<DebugNbtChunkGenerator> CODEC = RecordCodecBuilder.create((instance) -> {
+	public static final MapCodec<DebugNbtChunkGenerator> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
 		return instance
 			.group(RegistryOps.retrieveElement(Biomes.THE_VOID))
 			.apply(instance, instance.stable(DebugNbtChunkGenerator::new));
 	});
-	BidirectionalMap<Identifier, BlockPos> positions = new BidirectionalMap<Identifier, BlockPos>();
+	BidirectionalMap<ResourceLocation, BlockPos> positions = new BidirectionalMap<ResourceLocation, BlockPos>();
 
 	public DebugNbtChunkGenerator(Holder.Reference<Biome> reference) {
 		super(new FixedBiomeSource(reference), new DebugNbtGroup());
 	}
 
 	@Override
-	protected Codec<? extends ChunkGenerator> getCodec() {
+	protected MapCodec<? extends ChunkGenerator> codec() {
 		return CODEC;
 	}
 
@@ -71,40 +61,44 @@ public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateNoise(ChunkRegion chunkRegion, ChunkStatus targetStatus, Executor executor,
-			ServerWorld world, ChunkGenerator generator, StructureTemplateManager structureTemplateManager,
-			ServerLightingProvider lightingProvider,
-			Function<Chunk, CompletableFuture<Either<Chunk, Unloaded>>> fullChunkConverter, List<Chunk> chunks,
-			Chunk chunk) {
+	public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunk) {
+		return null;
+	}
 
-		if (chunk.getPos().getStartPos().getX() < 0 || chunk.getPos().getStartPos().getZ() < 0) {
+
+	@Override
+	public CompletableFuture<ChunkAccess> populateNoise(WorldGenRegion chunkRegion,
+														ServerLevel world, ChunkGenerator generator,
+														ChunkAccess chunk) {
+
+		if (chunk.getPos().getWorldPosition().getX() < 0 || chunk.getPos().getWorldPosition().getZ() < 0) {
 			return CompletableFuture.completedFuture(chunk);
 		}
 
 		ResourceManager resourceManager = world.getServer().getResourceManager();
 
 		if (positions.isEmpty()) {
-			Map<Identifier, List<Resource>> ids = resourceManager
-				.findAllResources("structures/nbt", (id) -> id.getPath().endsWith(".nbt"));
-			Map<Identifier, NbtPlacerUtil> nbts = new LinkedHashMap<>();
+			Map<ResourceLocation, List<Resource>> ids = resourceManager
+				.listResourceStacks("structures/nbt", (id) -> id.getPath().endsWith(".nbt"));
+			Map<ResourceLocation, NbtPlacerUtil> nbts = new LinkedHashMap<>();
 
-			for (Identifier id : ids.keySet()) {
+			for (ResourceLocation id : ids.keySet()) {
 				NbtPlacerUtil nbt = NbtPlacerUtil.load(id, resourceManager);
 				nbts.put(id, nbt);
 			}
 
-			List<Map.Entry<Identifier, NbtPlacerUtil>> sortedNbts = new ArrayList<>(nbts.entrySet());
-			sortedNbts.sort((a, b) -> a.getKey().compareTo(b.getKey()));
+			List<Map.Entry<ResourceLocation, NbtPlacerUtil>> sortedNbts = new ArrayList<>(nbts.entrySet());
+			sortedNbts.sort(Map.Entry.comparingByKey());
 			int maxSizeZ = 0;
 
 			for (int i = 0; i < sortedNbts.size(); i++) {
-				Map.Entry<Identifier, NbtPlacerUtil> entry = sortedNbts.get(i);
+				Map.Entry<ResourceLocation, NbtPlacerUtil> entry = sortedNbts.get(i);
 				BlockPos prevPos;
 				BlockPos prevSize;
 
 				if (i == 0) {
-					prevPos = BlockPos.ORIGIN;
-					prevSize = BlockPos.ORIGIN.add(-2, 0, 0);
+					prevPos = BlockPos.ZERO;
+					prevSize = BlockPos.ZERO.offset(-2, 0, 0);
 				} else {
 					prevPos = positions.get(sortedNbts.get(i - 1).getKey());
 					prevSize = new BlockPos(sortedNbts.get(i - 1).getValue().sizeX, sortedNbts.get(i - 1).getValue().sizeY,
@@ -112,7 +106,7 @@ public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 				}
 
 				if (prevPos.getX() > 160) {
-					prevPos = BlockPos.ORIGIN.add(-prevSize.getX() - 2, 0, prevPos.getZ() + maxSizeZ + 2);
+					prevPos = BlockPos.ZERO.offset(-prevSize.getX() - 2, 0, prevPos.getZ() + maxSizeZ + 2);
 					maxSizeZ = 0;
 				}
 
@@ -120,7 +114,7 @@ public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 					maxSizeZ = entry.getValue().sizeZ;
 				}
 
-				positions.put(entry.getKey(), prevPos.add(prevSize.getX() + 2, 0, 0));
+				positions.put(entry.getKey(), prevPos.offset(prevSize.getX() + 2, 0, 0));
 				this.nbtGroup
 					.getGroups()
 					.computeIfAbsent("debug", (s) -> Lists.newArrayList())
@@ -133,32 +127,32 @@ public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 		for (int x = 0; x < 16; x++) {
 
 			for (int z = 0; z < 16; z++) {
-				BlockPos pos = chunk.getPos().getStartPos().add(x, 10, z);
+				BlockPos pos = chunk.getPos().getWorldPosition().offset(x, 10, z);
 
-				if (positions.reverseMap.containsKey(pos.add(0, -10, 0))) {
-					Identifier id = positions.reverseMap.get(pos.add(0, -10, 0));
+				if (positions.reverseMap.containsKey(pos.offset(0, -10, 0))) {
+					ResourceLocation id = positions.reverseMap.get(pos.offset(0, -10, 0));
 					this.generateNbt(chunkRegion, pos, id);
 					chunkRegion
-						.setBlockState(pos.add(-1, -1, -1),
-							Blocks.STRUCTURE_BLOCK.getDefaultState().with(StructureBlock.MODE, StructureBlockMode.SAVE),
-							Block.FORCE_STATE);
-					BlockEntity be = chunkRegion.getBlockEntity(pos.add(-1, -1, -1));
+						.setBlock(pos.offset(-1, -1, -1),
+							Blocks.STRUCTURE_BLOCK.defaultBlockState().setValue(StructureBlock.MODE, StructureMode.SAVE),
+							Block.UPDATE_KNOWN_SHAPE);
+					BlockEntity be = chunkRegion.getBlockEntity(pos.offset(-1, -1, -1));
 
-					if (be != null && be instanceof StructureBlockBlockEntity blockEntity) {
+					if (be != null && be instanceof StructureBlockEntity blockEntity) {
 						blockEntity
-							.setSize(new Vec3i(this.structures.eval(id, resourceManager).sizeX,
+							.setStructureSize(new Vec3i(this.structures.eval(id, resourceManager).sizeX,
 								this.structures.eval(id, resourceManager).sizeY,
 								this.structures.eval(id, resourceManager).sizeZ));
 						blockEntity
 							.setStructureName(
 								id.toString().substring(0, id.toString().length() - 4).replaceFirst("structures/", ""));
-						blockEntity.setOffset(new BlockPos(1, 1, 1));
+						blockEntity.setStructurePos(new BlockPos(1, 1, 1));
 						blockEntity.setIgnoreEntities(false);
 					}
 
 				}
 
-				chunkRegion.setBlockState(pos.add(0, -10, 0), Blocks.BARRIER.getDefaultState(), Block.FORCE_STATE);
+				chunkRegion.setBlock(pos.offset(0, -10, 0), Blocks.BARRIER.defaultBlockState(), Block.UPDATE_KNOWN_SHAPE);
 			}
 
 		}
@@ -167,33 +161,33 @@ public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	public int getWorldHeight() {
+	public int getGenDepth() {
 		return 448;
 	}
 
 	@Override
-	protected void modifyStructure(ChunkRegion region, BlockPos pos, BlockState state, Optional<NbtCompound> blockEntityNbt,
+	protected void modifyStructure(WorldGenRegion region, BlockPos pos, BlockState state, Optional<CompoundTag> blockEntityNbt,
 			int update) {
-		region.setBlockState(pos, state, update, 1);
+		region.setBlock(pos, state, update, 1);
 		blockEntityNbt.ifPresent((nbt) -> {
 			if (region.getBlockEntity(pos) != null)
-				region.getBlockEntity(pos).readNbt(nbt);
+				region.getBlockEntity(pos).loadWithComponents(nbt, region.registryAccess());
 		});
 	}
 
 	@Override
-	public void method_40450(List<String> list, RandomState randomState, BlockPos pos) {
+	public void addDebugScreenInfo(List<String> list, RandomState randomState, BlockPos pos) {
 	}
 
 	public static class DebugNbtGroup extends NbtGroup {
 
 		public DebugNbtGroup() {
-			super(new Identifier("debug"), Maps.newHashMap());
+			super(ResourceLocation.parse("debug"), Maps.newHashMap());
 		}
 
 		@Override
-		public Identifier nbtId(String group, String nbt) {
-			return new Identifier(nbt);
+		public ResourceLocation nbtId(String group, String nbt) {
+			return ResourceLocation.parse(nbt);
 		}
 
 	}

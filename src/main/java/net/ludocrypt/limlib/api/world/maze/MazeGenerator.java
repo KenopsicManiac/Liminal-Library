@@ -5,8 +5,8 @@ import java.util.HashMap;
 import net.ludocrypt.limlib.api.world.LimlibHelper;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.CellState;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.Vec2i;
-import net.minecraft.util.random.RandomGenerator;
-import net.minecraft.world.ChunkRegion;
+import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.RandomSource;
 
 public class MazeGenerator<M extends MazeComponent> {
 
@@ -46,7 +46,7 @@ public class MazeGenerator<M extends MazeComponent> {
 	 * @param cellDecorator funcional interface to generate a single maze block, or
 	 *                      'cell'
 	 */
-	public void generateMaze(Vec2i pos, ChunkRegion region, MazeCreator<M> mazeCreator, CellDecorator<M> cellDecorator) {
+	public void generateMaze(Vec2i pos, WorldGenRegion region, MazeCreator<M> mazeCreator, CellDecorator<M> cellDecorator) {
 
 		for (int x = 0; x < 16; x++) {
 
@@ -63,8 +63,8 @@ public class MazeGenerator<M extends MazeComponent> {
 					} else {
 						maze = mazeCreator
 							.newMaze(region, mazePos, width, height,
-								RandomGenerator
-									.createLegacy(LimlibHelper
+								RandomSource
+									.create(LimlibHelper
 										.blockSeed(mazePos.getX(), mazePos.getY(), region.getSeed() + seedModifier)));
 						this.mazes.put(mazePos, maze);
 					}
@@ -74,8 +74,8 @@ public class MazeGenerator<M extends MazeComponent> {
 					CellState originCell = maze.cellState(mazeX, mazeY);
 					cellDecorator
 						.generate(region, inPos, mazePos, maze, originCell, new Vec2i(this.thicknessX, this.thicknessY),
-							RandomGenerator
-								.createLegacy(LimlibHelper
+							RandomSource
+								.create(LimlibHelper
 									.blockSeed(mazePos.getX(), mazePos.getY(), region.getSeed() + seedModifier)));
 				}
 
@@ -92,15 +92,15 @@ public class MazeGenerator<M extends MazeComponent> {
 	@FunctionalInterface
 	public static interface CellDecorator<M extends MazeComponent> {
 
-		void generate(ChunkRegion region, Vec2i pos, Vec2i mazePos, M maze, CellState state, Vec2i thickness,
-				RandomGenerator random);
+		void generate(WorldGenRegion region, Vec2i pos, Vec2i mazePos, M maze, CellState state, Vec2i thickness,
+				RandomSource random);
 
 	}
 
 	@FunctionalInterface
 	public static interface MazeCreator<M extends MazeComponent> {
 
-		M newMaze(ChunkRegion region, Vec2i mazePos, int width, int height, RandomGenerator random);
+		M newMaze(WorldGenRegion region, Vec2i mazePos, int width, int height, RandomSource random);
 
 	}
 

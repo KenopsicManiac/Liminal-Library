@@ -1,13 +1,13 @@
 package net.ludocrypt.limlib.api.effects.sound.distortion;
 
+import com.mojang.serialization.MapCodec;
 import org.lwjgl.openal.EXTEfx;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * A Distortion effect controls
@@ -17,7 +17,7 @@ import net.minecraft.util.Identifier;
  */
 public class StaticDistortionEffect extends DistortionEffect {
 
-	public static final Codec<StaticDistortionEffect> CODEC = RecordCodecBuilder.create((instance) -> {
+	public static final MapCodec<StaticDistortionEffect> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
 		return instance.group(Codec.BOOL.optionalFieldOf("enabled", true).stable().forGetter((distortion) -> {
 			return distortion.enabled;
 		}), Codec
@@ -76,12 +76,12 @@ public class StaticDistortionEffect extends DistortionEffect {
 	}
 
 	@Override
-	public Codec<? extends DistortionEffect> getCodec() {
+	public MapCodec<? extends DistortionEffect> getCodec() {
 		return CODEC;
 	}
 
 	@Override
-	public boolean shouldIgnore(Identifier identifier) {
+	public boolean shouldIgnore(ResourceLocation identifier) {
 		return identifier.getPath().contains("ui.") || identifier.getPath().contains("music.") || identifier
 			.getPath()
 			.contains("block.lava.pop") || identifier.getPath().contains("weather.") || identifier
@@ -90,32 +90,32 @@ public class StaticDistortionEffect extends DistortionEffect {
 	}
 
 	@Override
-	public boolean isEnabled(MinecraftClient client, SoundInstance soundInstance) {
+	public boolean isEnabled(Minecraft client, SoundInstance soundInstance) {
 		return this.enabled;
 	}
 
 	@Override
-	public float getEdge(MinecraftClient client, SoundInstance soundInstance) {
+	public float getEdge(Minecraft client, SoundInstance soundInstance) {
 		return this.edge;
 	}
 
 	@Override
-	public float getGain(MinecraftClient client, SoundInstance soundInstance) {
+	public float getGain(Minecraft client, SoundInstance soundInstance) {
 		return this.gain;
 	}
 
 	@Override
-	public float getLowpassCutoff(MinecraftClient client, SoundInstance soundInstance) {
+	public float getLowpassCutoff(Minecraft client, SoundInstance soundInstance) {
 		return this.lowpassCutoff;
 	}
 
 	@Override
-	public float getEQCenter(MinecraftClient client, SoundInstance soundInstance) {
+	public float getEQCenter(Minecraft client, SoundInstance soundInstance) {
 		return this.eqCenter;
 	}
 
 	@Override
-	public float getEQBandWidth(MinecraftClient client, SoundInstance soundInstance) {
+	public float getEQBandWidth(Minecraft client, SoundInstance soundInstance) {
 		return this.eqBandWidth;
 	}
 

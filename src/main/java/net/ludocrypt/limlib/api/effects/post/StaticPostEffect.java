@@ -1,26 +1,26 @@
 package net.ludocrypt.limlib.api.effects.post;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class StaticPostEffect extends PostEffect {
 
-	public static final Codec<StaticPostEffect> CODEC = RecordCodecBuilder.create((instance) -> {
-		return instance.group(Identifier.CODEC.fieldOf("shader_name").stable().forGetter((postEffect) -> {
+	public static final MapCodec<StaticPostEffect> CODEC = RecordCodecBuilder.mapCodec(instance -> {
+		return instance.group(ResourceLocation.CODEC.fieldOf("shader_name").stable().forGetter((postEffect) -> {
 			return postEffect.shaderName;
 		})).apply(instance, instance.stable(StaticPostEffect::new));
 	});
 
-	private final Identifier shaderName;
+	private final ResourceLocation shaderName;
 
-	public StaticPostEffect(Identifier shaderLocation) {
+	public StaticPostEffect(ResourceLocation shaderLocation) {
 		this.shaderName = shaderLocation;
 	}
 
 	@Override
-	public Codec<? extends PostEffect> getCodec() {
+	public MapCodec<? extends PostEffect> getCodec() {
 		return CODEC;
 	}
 
@@ -35,8 +35,8 @@ public class StaticPostEffect extends PostEffect {
 	}
 
 	@Override
-	public Identifier getShaderLocation() {
-		return new Identifier(shaderName.getNamespace(), "shaders/post/" + shaderName.getPath() + ".json");
+	public ResourceLocation getShaderLocation() {
+		return ResourceLocation.fromNamespaceAndPath(shaderName.getNamespace(), "shaders/post/" + shaderName.getPath() + ".json");
 	}
 
 }

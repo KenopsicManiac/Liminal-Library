@@ -15,24 +15,24 @@ import com.mojang.serialization.Dynamic;
 import net.ludocrypt.limlib.api.LimlibWorld;
 import net.ludocrypt.limlib.api.LimlibWorld.RegistryProvider;
 import net.ludocrypt.limlib.impl.SaveStorageSupplier;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.HolderProvider;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryOps;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.storage.WorldSaveStorage;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.storage.LevelStorageSource;
 
-@Mixin(WorldSaveStorage.class)
+@Mixin(LevelStorageSource.class)
 public class WorldSaveStorageMixin {
 
-	@ModifyVariable(method = "readGeneratorProperties(Lcom/mojang/serialization/Dynamic;Lcom/mojang/datafixers/DataFixer;I)Lcom/mojang/serialization/DataResult;", at = @At(value = "STORE"), ordinal = 1)
+	@ModifyVariable(method = "readWorldGenSettings(Lcom/mojang/serialization/Dynamic;Lcom/mojang/datafixers/DataFixer;I)Lcom/mojang/serialization/DataResult;", at = @At(value = "STORE"), ordinal = 1)
 	private static <T> Dynamic<T> limlib$readGeneratorProperties$datafix(Dynamic<T> in, Dynamic<T> levelData,
 			DataFixer dataFixer, int version) {
 		Dynamic<T> dynamic = in;
 
-		for (Entry<RegistryKey<LimlibWorld>, LimlibWorld> entry : LimlibWorld.LIMLIB_WORLD.getEntries()) {
+		for (Entry<ResourceKey<LimlibWorld>, LimlibWorld> entry : LimlibWorld.LIMLIB_WORLD.entrySet()) {
 			dynamic = limlib$addDimension(entry.getKey(), entry.getValue(), dynamic);
 		}
 
@@ -41,24 +41,24 @@ public class WorldSaveStorageMixin {
 
 	@Unique
 	@SuppressWarnings("unchecked")
-	private static <T> Dynamic<T> limlib$addDimension(RegistryKey<LimlibWorld> key, LimlibWorld world, Dynamic<T> in) {
+	private static <T> Dynamic<T> limlib$addDimension(ResourceKey<LimlibWorld> key, LimlibWorld world, Dynamic<T> in) {
 		Dynamic<T> dimensions = in.get("dimensions").orElseEmptyMap();
 
-		if (!dimensions.get(key.getValue().toString()).result().isPresent()) {
+		if (!dimensions.get(key.location().toString()).result().isPresent()) {
 			Map<Dynamic<T>, Dynamic<T>> dimensionsMap = Maps.newHashMap(dimensions.getMapValues().result().get());
 
-			DynamicRegistryManager registryManager = SaveStorageSupplier.LOADED_REGISTRY.get();
+			RegistryAccess registryManager = SaveStorageSupplier.LOADED_REGISTRY.get();
 
 			dimensionsMap
-				.put(dimensions.createString(key.getValue().toString()),
+				.put(dimensions.createString(key.location().toString()),
 					new Dynamic<T>(dimensions.getOps(),
-						(T) DimensionOptions.CODEC
+						(T) LevelStem.CODEC
 							.encodeStart(RegistryOps.create(NbtOps.INSTANCE, registryManager),
 								world.getDimensionOptionsSupplier().apply(new RegistryProvider() {
 
 									@Override
-									public <Q> HolderProvider<Q> get(RegistryKey<Registry<Q>> key) {
-										return registryManager.getLookup(key).get();
+									public <Q> HolderGetter<Q> get(ResourceKey<Registry<Q>> key) {
+										return registryManager.lookup(key).get();
 									}
 
 								}))

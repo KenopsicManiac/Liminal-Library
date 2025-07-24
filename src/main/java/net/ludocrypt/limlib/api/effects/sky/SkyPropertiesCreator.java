@@ -1,26 +1,26 @@
 package net.ludocrypt.limlib.api.effects.sky;
 
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.client.renderer.DimensionSpecialEffects.SkyType;
+import net.minecraft.world.phys.Vec3;
 
-import net.minecraft.client.render.DimensionVisualEffects;
-import net.minecraft.client.render.DimensionVisualEffects.SkyType;
-import net.minecraft.util.math.Vec3d;
-
-@ClientOnly
+@Environment(EnvType.CLIENT)
 public class SkyPropertiesCreator {
 
-	public static DimensionVisualEffects create(float cloudHeight, boolean alternateSkyColor, String skyType,
+	public static DimensionSpecialEffects create(float cloudHeight, boolean alternateSkyColor, String skyType,
 			boolean brightenLighting, boolean darkened, boolean thickFog) {
-		return new DimensionVisualEffects(cloudHeight, alternateSkyColor, SkyType.valueOf(skyType), brightenLighting,
+		return new DimensionSpecialEffects(cloudHeight, alternateSkyColor, SkyType.valueOf(skyType), brightenLighting,
 			darkened) {
 
 			@Override
-			public Vec3d adjustFogColor(Vec3d color, float sunHeight) {
+			public Vec3 getBrightnessDependentFogColor(Vec3 color, float sunHeight) {
 				return color;
 			}
 
 			@Override
-			public boolean useThickFog(int camX, int camY) {
+			public boolean isFoggyAt(int camX, int camY) {
 				return thickFog;
 			}
 

@@ -7,22 +7,21 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
-import net.minecraft.world.dimension.WorldDimensions;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.WorldDimensions;
 
 @Mixin(WorldDimensions.class)
 public abstract class WorldDimensionsMixin {
 
+	@Shadow
+	public abstract ChunkGenerator overworld();
+
 	@Inject(method = "isDebug", at = @At("HEAD"), cancellable = true)
 	public void limlib$isDebug(CallbackInfoReturnable<Boolean> ci) {
 
-		if (this.getOverworldChunkGenerator() instanceof DebugNbtChunkGenerator) {
+		if (this.overworld() instanceof DebugNbtChunkGenerator) {
 			ci.setReturnValue(true);
 		}
 
 	}
-
-	@Shadow
-	public abstract ChunkGenerator getOverworldChunkGenerator();
-
 }

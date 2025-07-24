@@ -1,34 +1,34 @@
 package net.ludocrypt.limlib.api.skybox;
 
-import java.util.function.Function;
-
-import org.joml.Matrix4f;
-import org.quiltmc.loader.api.minecraft.ClientOnly;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
-
+import com.mojang.serialization.MapCodec;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.ludocrypt.limlib.impl.mixin.RegistriesAccessor;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import org.joml.Matrix4f;
+
+import java.util.function.Function;
 
 public abstract class Skybox {
 
-	public static final RegistryKey<Registry<Codec<? extends Skybox>>> SKYBOX_CODEC_KEY = RegistryKey
-		.ofRegistry(new Identifier("limlib/codec/skybox"));
-	public static final Registry<Codec<? extends Skybox>> SKYBOX_CODEC = RegistriesAccessor
-		.callRegisterSimple(SKYBOX_CODEC_KEY, Lifecycle.stable(), (registry) -> TexturedSkybox.CODEC);
-	public static final Codec<Skybox> CODEC = SKYBOX_CODEC.getCodec().dispatchStable(Skybox::getCodec, Function.identity());
-	public static final RegistryKey<Registry<Skybox>> SKYBOX_KEY = RegistryKey.ofRegistry(new Identifier("limlib/skybox"));
+	public static final ResourceKey<Registry<MapCodec<? extends Skybox>>> SKYBOX_CODEC_KEY = ResourceKey
+		.createRegistryKey(ResourceLocation.parse("limlib/codec/skybox"));
+	public static final Registry<MapCodec<? extends Skybox>> SKYBOX_CODEC = RegistriesAccessor
+		.callRegisterSimple(SKYBOX_CODEC_KEY, (registry) -> TexturedSkybox.CODEC);
+	public static final Codec<Skybox> CODEC = SKYBOX_CODEC. byNameCodec().dispatchStable(Skybox::getCodec, Function.identity());
+	public static final ResourceKey<Registry<Skybox>> SKYBOX_KEY = ResourceKey.createRegistryKey(ResourceLocation.parse("limlib/skybox"));
 
-	public abstract Codec<? extends Skybox> getCodec();
+	public abstract MapCodec<? extends Skybox> getCodec();
 
-	@ClientOnly
-	public abstract void renderSky(WorldRenderer worldRenderer, MinecraftClient client, MatrixStack matrices,
+	@Environment(EnvType.CLIENT)
+	public abstract void renderSky(LevelRenderer worldRenderer, Minecraft client, PoseStack matrices,
 			Matrix4f projectionMatrix, float tickDelta);
 
 }

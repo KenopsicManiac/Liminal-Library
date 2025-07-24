@@ -11,37 +11,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.mojang.authlib.GameProfile;
 
 import net.ludocrypt.limlib.api.LimlibTravelling;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
-@Mixin(ServerPlayerEntity.class)
-public abstract class ServerPlayerEntityMixin extends PlayerEntity {
+@Mixin(ServerPlayer.class)
+public abstract class ServerPlayerEntityMixin extends Player {
 
-	@Shadow
-	public ServerPlayNetworkHandler networkHandler;
-
-	public ServerPlayerEntityMixin(World world, BlockPos pos, float f, GameProfile gameProfile) {
+	public ServerPlayerEntityMixin(Level world, BlockPos pos, float f, GameProfile gameProfile) {
 		super(world, pos, f, gameProfile);
 	}
 
-	@Inject(method = "moveToWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V", ordinal = 5, shift = Shift.AFTER))
-	public void limlib$moveToWorld(ServerWorld to, CallbackInfoReturnable<Entity> ci) {
+	@Inject(method = "changeDimension", at = @At(value = "INVOKE", target = "net/minecraft/server/network/ServerGamePacketListenerImpl.send (Lnet/minecraft/network/protocol/Packet;)V", ordinal = 5, shift = Shift.AFTER))
+	public void limlib$moveToWorld(ServerLevel to, CallbackInfoReturnable<Entity> ci) {
 
 		if (LimlibTravelling.travelingSound != null) {
 			this
-				.playSound(LimlibTravelling.travelingSound, SoundCategory.AMBIENT, LimlibTravelling.travelingVolume,
+				.playNotifySound(LimlibTravelling.travelingSound, SoundSource.AMBIENT, LimlibTravelling.travelingVolume,
 					LimlibTravelling.travelingPitch);
 		}
 
 	}
 
-	@ModifyArg(method = "moveToWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/packet/s2c/play/WorldEventS2CPacket;<init>(ILnet/minecraft/util/math/BlockPos;IZ)V", ordinal = 0), index = 0)
+	@ModifyArg(method = "changeDimension", at = @At(value = "INVOKE", target = "net/minecraft/network/protocol/game/ClientboundLevelEventPacket.<init> (ILnet/minecraft/core/BlockPos;IZ)V", ordinal = 0), index = 0)
 	private int limlib$moveToWorld(int in) {
 		return 29848748;
 	}

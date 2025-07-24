@@ -1,8 +1,7 @@
 package net.ludocrypt.limlib.api.world.maze;
 
 import java.util.Stack;
-
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 
 public abstract class DepthLikeMaze extends MazeComponent {
 
@@ -44,12 +43,12 @@ public abstract class DepthLikeMaze extends MazeComponent {
 		};
 	}
 
-	public NbtCompound visit(Vec2i vec) {
+	public CompoundTag visit(Vec2i vec) {
 		return visit(vec, true);
 	}
 
-	public NbtCompound visit(Vec2i vec, boolean visited) {
-		NbtCompound appendage = new NbtCompound();
+	public CompoundTag visit(Vec2i vec, boolean visited) {
+		CompoundTag appendage = new CompoundTag();
 		appendage.putBoolean("visited", visited);
 		cellState(vec).getExtra().put("visited", appendage);
 		return appendage;

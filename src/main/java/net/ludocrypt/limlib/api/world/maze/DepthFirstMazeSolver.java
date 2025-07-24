@@ -2,10 +2,8 @@ package net.ludocrypt.limlib.api.world.maze;
 
 import java.util.List;
 import java.util.Stack;
-
+import net.minecraft.util.RandomSource;
 import com.google.common.collect.Lists;
-
-import net.minecraft.util.random.RandomGenerator;
 
 /**
  * Solves a maze using the Depth First Search algorithm.
@@ -15,7 +13,7 @@ public class DepthFirstMazeSolver extends DepthLikeMaze {
 	private final MazeComponent mazeToSolve;
 	private final Vec2i end;
 	private final List<Vec2i> beginnings;
-	public final RandomGenerator random;
+	public final RandomSource random;
 
 	/**
 	 * Creates a depth first maze solver.
@@ -26,7 +24,7 @@ public class DepthFirstMazeSolver extends DepthLikeMaze {
 	 * @param end         is the position for the depth first algorithm to find
 	 * @param beginnings  are the positions to start from
 	 **/
-	public DepthFirstMazeSolver(MazeComponent mazeToSolve, RandomGenerator random, Vec2i end, Vec2i... beginnings) {
+	public DepthFirstMazeSolver(MazeComponent mazeToSolve, RandomSource random, Vec2i end, Vec2i... beginnings) {
 		super(mazeToSolve.width, mazeToSolve.height);
 		this.mazeToSolve = mazeToSolve;
 		this.end = end;

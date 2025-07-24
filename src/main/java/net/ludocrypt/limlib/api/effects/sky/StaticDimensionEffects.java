@@ -1,13 +1,15 @@
 package net.ludocrypt.limlib.api.effects.sky;
 
+import java.util.Map;
 import java.util.Optional;
 
-import org.quiltmc.loader.api.minecraft.ClientOnly;
+import com.mojang.serialization.MapCodec;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-
-import net.minecraft.client.render.DimensionVisualEffects;
 
 /**
  * A Sky effects controller
@@ -17,7 +19,7 @@ import net.minecraft.client.render.DimensionVisualEffects;
  */
 public class StaticDimensionEffects extends DimensionEffects {
 
-	public static final Codec<StaticDimensionEffects> CODEC = RecordCodecBuilder.create((instance) -> {
+	public static final MapCodec<StaticDimensionEffects> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
 		return instance.group(Codec.FLOAT.optionalFieldOf("cloud_height").stable().forGetter((effects) -> {
 			return effects.cloudHeight;
 		}), Codec.BOOL.fieldOf("alternate_sky_color").stable().forGetter((effects) -> {
@@ -54,7 +56,7 @@ public class StaticDimensionEffects extends DimensionEffects {
 		this.skyShading = skyShading;
 	}
 
-	public Codec<? extends DimensionEffects> getCodec() {
+	public MapCodec<? extends DimensionEffects> getCodec() {
 		return CODEC;
 	}
 
@@ -83,8 +85,8 @@ public class StaticDimensionEffects extends DimensionEffects {
 	}
 
 	@Override
-	@ClientOnly
-	public DimensionVisualEffects getDimensionEffects() {
+	@Environment(EnvType.CLIENT)
+	public DimensionSpecialEffects getDimensionEffects() {
 		return SkyPropertiesCreator
 			.create(getCloudHeight(), hasAlternateSkyColor(), getSkyType(), shouldBrightenLighting(), isDarkened(),
 				hasThickFog());
