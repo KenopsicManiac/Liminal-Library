@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import com.google.common.collect.Maps;
@@ -27,10 +28,9 @@ import net.minecraft.world.level.storage.LevelStorageSource;
 @Mixin(LevelStorageSource.class)
 public class WorldSaveStorageMixin {
 
-	@ModifyVariable(method = "readWorldGenSettings(Lcom/mojang/serialization/Dynamic;Lcom/mojang/datafixers/DataFixer;I)Lcom/mojang/serialization/DataResult;", at = @At(value = "STORE"), ordinal = 1)
-	private static <T> Dynamic<T> limlib$readGeneratorProperties$datafix(Dynamic<T> in, Dynamic<T> levelData,
-			DataFixer dataFixer, int version) {
-		Dynamic<T> dynamic = in;
+	@ModifyArg(method = "getLevelDataAndDimensions", at = @At(value = "INVOKE", target = "Lcom/mojang/serialization/Codec;parse(Lcom/mojang/serialization/Dynamic;)Lcom/mojang/serialization/DataResult;"))
+	private static <T> Dynamic<T> limlib$readGeneratorProperties$datafix(Dynamic<T> value) {
+		Dynamic<T> dynamic = value;
 
 		for (Entry<ResourceKey<LimlibWorld>, LimlibWorld> entry : LimlibWorld.LIMLIB_WORLD.entrySet()) {
 			dynamic = limlib$addDimension(entry.getKey(), entry.getValue(), dynamic);
@@ -44,7 +44,7 @@ public class WorldSaveStorageMixin {
 	private static <T> Dynamic<T> limlib$addDimension(ResourceKey<LimlibWorld> key, LimlibWorld world, Dynamic<T> in) {
 		Dynamic<T> dimensions = in.get("dimensions").orElseEmptyMap();
 
-		if (!dimensions.get(key.location().toString()).result().isPresent()) {
+		if (dimensions.get(key.location().toString()).result().isEmpty()) {
 			Map<Dynamic<T>, Dynamic<T>> dimensionsMap = Maps.newHashMap(dimensions.getMapValues().result().get());
 
 			RegistryAccess registryManager = SaveStorageSupplier.LOADED_REGISTRY.get();

@@ -49,12 +49,12 @@ public class LimlibRegistryHooks {
 	public interface LimlibJsonRegistryHook<O> {
 
 		/**
-		 * @param infoLookup  The full registry lookup.
-		 * @param registryKey The RegistryKey of the registry.
 		 * @param registry    The MutableRegistry where to register.
+		 * @param registryKey The RegistryKey of the registry.
+		 * @param registryOps The full registry lookup.
 		 * @param jsonElement The jsonElement to modify before being read by a CODEC.
 		 */
-		void register(RegistryInfoLookup infoLookup, ResourceKey<? extends Registry<O>> registryKey,
+		void register(ResourceKey<? extends Registry<O>> registryKey,
 				RegistryOps<JsonElement> registryOps, JsonElement jsonElement);
 
 	}

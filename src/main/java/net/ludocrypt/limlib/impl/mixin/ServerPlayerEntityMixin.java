@@ -1,5 +1,6 @@
 package net.ludocrypt.limlib.impl.mixin;
 
+import net.minecraft.world.level.portal.DimensionTransition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,8 +28,8 @@ public abstract class ServerPlayerEntityMixin extends Player {
 		super(world, pos, f, gameProfile);
 	}
 
-	@Inject(method = "changeDimension", at = @At(value = "INVOKE", target = "net/minecraft/server/network/ServerGamePacketListenerImpl.send (Lnet/minecraft/network/protocol/Packet;)V", ordinal = 5, shift = Shift.AFTER))
-	public void limlib$moveToWorld(ServerLevel to, CallbackInfoReturnable<Entity> ci) {
+	@Inject(method = "changeDimension", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/portal/DimensionTransition$PostDimensionTransition;onTransition(Lnet/minecraft/world/entity/Entity;)V", shift = Shift.AFTER))
+	public void limlib$moveToWorld(DimensionTransition dimensionTransition, CallbackInfoReturnable<Entity> cir) {
 
 		if (LimlibTravelling.travelingSound != null) {
 			this
@@ -38,9 +39,9 @@ public abstract class ServerPlayerEntityMixin extends Player {
 
 	}
 
-	@ModifyArg(method = "changeDimension", at = @At(value = "INVOKE", target = "net/minecraft/network/protocol/game/ClientboundLevelEventPacket.<init> (ILnet/minecraft/core/BlockPos;IZ)V", ordinal = 0), index = 0)
-	private int limlib$moveToWorld(int in) {
-		return 29848748;
-	}
+//	@ModifyArg(method = "changeDimension", at = @At(value = "INVOKE", target = "net/minecraft/network/protocol/game/ClientboundLevelEventPacket.<init> (ILnet/minecraft/core/BlockPos;IZ)V", ordinal = 0), index = 0)
+//	private int limlib$moveToWorld(int in) {
+//		return 29848748;
+//	}
 
 }
