@@ -3,28 +3,27 @@ package net.ludocrypt.limlib.api.effects.sound.reverb;
 import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Lifecycle;
 
 import com.mojang.serialization.MapCodec;
-import net.ludocrypt.limlib.impl.mixin.RegistriesAccessor;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
+import net.ludocrypt.limlib.api.LimLibRegistries;
+import net.ludocrypt.limlib.api.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceLocation;
 
 /**
  * A Reverb effect controls
  */
-public abstract class ReverbEffect {
+public interface ReverbEffect {
+	MappedRegistry<MapCodec<? extends ReverbEffect>> REGISTRY = Utils.createRegistry(LimLibRegistries.REVERB_EFFECT_CODEC);
+	Codec<ReverbEffect> CODEC = REGISTRY.byNameCodec().dispatchStable(ReverbEffect::getCodec, Function.identity());
 
-	public static final ResourceKey<Registry<MapCodec<? extends ReverbEffect>>> REVERB_EFFECT_CODEC_KEY = ResourceKey
-		.createRegistryKey(ResourceLocation.parse("limlib/codec/reverb_effect"));
-	public static final Registry<MapCodec<? extends ReverbEffect>> REVERB_EFFECT_CODEC = RegistriesAccessor
-		.callRegisterSimple(REVERB_EFFECT_CODEC_KEY, (registry) -> StaticReverbEffect.CODEC);
-	public static final Codec<ReverbEffect> CODEC = REVERB_EFFECT_CODEC
-		.byNameCodec()
-		.dispatchStable(ReverbEffect::getCodec, Function.identity());
+	static void init() {
+		Utils.register(REGISTRY, "static", StaticReverbEffect.CODEC);
+		DynamicRegistries.register(LimLibRegistries.REVERB_EFFECT, ReverbEffect.CODEC);
+	}
 
 	public abstract MapCodec<? extends ReverbEffect> getCodec();
 

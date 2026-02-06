@@ -1,6 +1,8 @@
 package net.ludocrypt.limlib.api.effects.sound.distortion;
 
+import com.mojang.datafixers.util.Function7;
 import com.mojang.serialization.MapCodec;
+import net.ludocrypt.limlib.api.Utils;
 import org.lwjgl.openal.EXTEfx;
 
 import com.mojang.serialization.Codec;
@@ -15,65 +17,17 @@ import net.minecraft.resources.ResourceLocation;
  * This is a simplification of the base {@link DistortionEffect} class, where
  * each setting is a static, non-changing value
  */
-public class StaticDistortionEffect extends DistortionEffect {
+public record StaticDistortionEffect(boolean enabled, float edge, float gain, float lowpassCutoff, float eqCenter,
+									 float eqBandWidth) implements DistortionEffect {
 
-	public static final MapCodec<StaticDistortionEffect> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
-		return instance.group(Codec.BOOL.optionalFieldOf("enabled", true).stable().forGetter((distortion) -> {
-			return distortion.enabled;
-		}), Codec
-			.floatRange(EXTEfx.AL_DISTORTION_MIN_EDGE, EXTEfx.AL_DISTORTION_MAX_EDGE)
-			.optionalFieldOf("edge", EXTEfx.AL_DISTORTION_DEFAULT_EDGE)
-			.stable()
-			.forGetter((distortion) -> {
-				return distortion.edge;
-			}),
-			Codec
-				.floatRange(EXTEfx.AL_DISTORTION_MIN_GAIN, EXTEfx.AL_DISTORTION_MAX_GAIN)
-				.optionalFieldOf("gain", EXTEfx.AL_DISTORTION_DEFAULT_GAIN)
-				.stable()
-				.forGetter((distortion) -> {
-					return distortion.gain;
-				}),
-			Codec
-				.floatRange(EXTEfx.AL_DISTORTION_MIN_LOWPASS_CUTOFF, EXTEfx.AL_DISTORTION_MAX_LOWPASS_CUTOFF)
-				.optionalFieldOf("lowpass_cutoff", EXTEfx.AL_DISTORTION_DEFAULT_LOWPASS_CUTOFF)
-				.stable()
-				.forGetter((distortion) -> {
-					return distortion.lowpassCutoff;
-				}),
-			Codec
-				.floatRange(EXTEfx.AL_DISTORTION_MIN_EQCENTER, EXTEfx.AL_DISTORTION_MAX_EQCENTER)
-				.optionalFieldOf("eq_center", EXTEfx.AL_DISTORTION_DEFAULT_EQCENTER)
-				.stable()
-				.forGetter((distortion) -> {
-					return distortion.eqCenter;
-				}),
-			Codec
-				.floatRange(EXTEfx.AL_DISTORTION_MIN_EQBANDWIDTH, EXTEfx.AL_DISTORTION_MAX_EQBANDWIDTH)
-				.optionalFieldOf("eq_band_width", EXTEfx.AL_DISTORTION_DEFAULT_EQBANDWIDTH)
-				.stable()
-				.forGetter((distortion) -> {
-					return distortion.eqBandWidth;
-				}))
-			.apply(instance, instance.stable(StaticDistortionEffect::new));
-	});
-
-	private final boolean enabled;
-	private final float edge;
-	private final float gain;
-	private final float lowpassCutoff;
-	private final float eqCenter;
-	private final float eqBandWidth;
-
-	public StaticDistortionEffect(boolean enabled, float edge, float gain, float lowpassCutoff, float eqCenter,
-			float eqBandWidth) {
-		this.enabled = enabled;
-		this.edge = edge;
-		this.gain = gain;
-		this.lowpassCutoff = lowpassCutoff;
-		this.eqCenter = eqCenter;
-		this.eqBandWidth = eqBandWidth;
-	}
+	public static final MapCodec<StaticDistortionEffect> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(
+			Codec.BOOL.optionalFieldOf("enabled", true).stable().forGetter(StaticDistortionEffect::enabled),
+			Utils.floatRangeCodec("edge", EXTEfx.AL_DISTORTION_MIN_EDGE, EXTEfx.AL_DISTORTION_MAX_EDGE, EXTEfx.AL_DISTORTION_DEFAULT_EDGE, StaticDistortionEffect::edge),
+			Utils.floatRangeCodec("gain", EXTEfx.AL_DISTORTION_MIN_GAIN, EXTEfx.AL_DISTORTION_MAX_GAIN, EXTEfx.AL_DISTORTION_DEFAULT_GAIN, StaticDistortionEffect::gain),
+			Utils.floatRangeCodec("lowpass_cutoff", EXTEfx.AL_DISTORTION_MIN_LOWPASS_CUTOFF, EXTEfx.AL_DISTORTION_MAX_LOWPASS_CUTOFF, EXTEfx.AL_DISTORTION_DEFAULT_LOWPASS_CUTOFF, StaticDistortionEffect::lowpassCutoff),
+			Utils.floatRangeCodec("eq_center", EXTEfx.AL_DISTORTION_MIN_EQCENTER, EXTEfx.AL_DISTORTION_MAX_EQCENTER, EXTEfx.AL_DISTORTION_DEFAULT_EQCENTER, StaticDistortionEffect::eqCenter),
+			Utils.floatRangeCodec("eq_band_width", EXTEfx.AL_DISTORTION_MIN_EQBANDWIDTH, EXTEfx.AL_DISTORTION_MAX_EQBANDWIDTH, EXTEfx.AL_DISTORTION_DEFAULT_EQBANDWIDTH, StaticDistortionEffect::eqBandWidth))
+		.apply(instance, instance.stable(StaticDistortionEffect::new)));
 
 	@Override
 	public MapCodec<? extends DistortionEffect> getCodec() {
@@ -85,8 +39,8 @@ public class StaticDistortionEffect extends DistortionEffect {
 		return identifier.getPath().contains("ui.") || identifier.getPath().contains("music.") || identifier
 			.getPath()
 			.contains("block.lava.pop") || identifier.getPath().contains("weather.") || identifier
-				.getPath()
-				.startsWith("atmosfera") || identifier.getPath().startsWith("dynmus");
+			.getPath()
+			.startsWith("atmosfera") || identifier.getPath().startsWith("dynmus");
 	}
 
 	@Override
@@ -117,6 +71,10 @@ public class StaticDistortionEffect extends DistortionEffect {
 	@Override
 	public float getEQBandWidth(Minecraft client, SoundInstance soundInstance) {
 		return this.eqBandWidth;
+	}
+
+	Builder builder() {
+		return new Builder();
 	}
 
 	public static class Builder {

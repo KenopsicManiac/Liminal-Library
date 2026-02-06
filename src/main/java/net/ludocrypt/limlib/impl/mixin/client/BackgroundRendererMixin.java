@@ -1,11 +1,11 @@
 package net.ludocrypt.limlib.impl.mixin.client;
 
 import java.util.Optional;
+import java.util.function.Function;
 
-import net.minecraft.client.Camera;
+import net.ludocrypt.limlib.api.LimLibRegistries;
 import net.minecraft.client.multiplayer.ClientLevel;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
@@ -17,21 +17,12 @@ import net.minecraft.resources.ResourceKey;
 
 @Mixin(FogRenderer.class)
 public abstract class BackgroundRendererMixin {
-
-
 	@ModifyVariable(method = "setupColor", at = @At(value = "STORE", ordinal = 3), ordinal = 2)
 	private static float limlib$modifySkyColor(float in) {
-		Minecraft client = Minecraft.getInstance();
 
-		Optional<DimensionEffects> dimensionEffects = LookupGrabber
-			.snatch(client.level.registryAccess().lookup(DimensionEffects.DIMENSION_EFFECTS_KEY).get(),
-				ResourceKey.create(DimensionEffects.DIMENSION_EFFECTS_KEY, client.level.dimension().location()));
-
-		if (dimensionEffects.isPresent()) {
-			return dimensionEffects.get().getSkyShading();
-		}
-
-		return in;
+		return LookupGrabber.snatchFromLevel(Minecraft.getInstance().level, LimLibRegistries.DIMENSION_EFFECTS)
+			.map(DimensionEffects::skyShading)
+			.orElse(in);
 	}
 
 }

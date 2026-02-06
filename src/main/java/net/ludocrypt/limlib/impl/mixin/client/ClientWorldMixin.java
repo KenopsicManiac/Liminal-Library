@@ -2,6 +2,7 @@ package net.ludocrypt.limlib.impl.mixin.client;
 
 import java.util.function.Supplier;
 
+import net.ludocrypt.limlib.api.LimLibRegistries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
@@ -34,8 +35,7 @@ public abstract class ClientWorldMixin extends Level {
 	private void limlib$init(ClientPacketListener netHandler, ClientLevel.ClientLevelData clientWorldProperties,
 			ResourceKey<Level> registryKey, Holder<DimensionType> dimensionType, int chunkManager, int simulationDistance,
 			Supplier<ProfilerFiller> profiler, LevelRenderer worldRenderer, boolean debugWorld, long seed, CallbackInfo ci) {
-		DimensionEffects.MIXIN_WORLD_LOOKUP
-			.set(this.registryAccess().lookup(DimensionEffects.DIMENSION_EFFECTS_KEY).get());
+		this.registryAccess().lookup(LimLibRegistries.DIMENSION_EFFECTS).ifPresent(DimensionEffects.MIXIN_WORLD_LOOKUP::set);
 	}
 
 }

@@ -4,4 +4,4 @@ accessible class net/minecraft/resources/RegistryDataLoader$RegistryData
 accessible method net/minecraft/resources/RegistryDataLoader$RegistryData <init> (Lnet/minecraft/resources/ResourceKey;Lcom/mojang/serialization/Codec;)V
 accessible class net/minecraft/resources/RegistryDataLoader$LoadingFunction
 accessible method net/minecraft/world/item/BoatItem getBoat (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/HitResult;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/world/entity/vehicle/Boat;
-
+accessible class net/minecraft/resources/RegistryDataLoader$Loader

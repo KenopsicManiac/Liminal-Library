@@ -3,48 +3,46 @@ package net.ludocrypt.limlib.api.effects.sound.distortion;
 import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.Lifecycle;
 
 import com.mojang.serialization.MapCodec;
-import net.ludocrypt.limlib.impl.mixin.RegistriesAccessor;
+import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
+import net.ludocrypt.limlib.api.LimLibRegistries;
+import net.ludocrypt.limlib.api.Utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceLocation;
 
 /**
  * A Distortion effect controls
  */
-public abstract class DistortionEffect {
+public interface DistortionEffect {
+	MappedRegistry<MapCodec<? extends DistortionEffect>> REGISTRY = Utils.createRegistry(LimLibRegistries.DISTORTION_EFFECT_CODEC);
+	Codec<DistortionEffect> CODEC = REGISTRY.byNameCodec().dispatchStable(DistortionEffect::getCodec, Function.identity());
 
-	public static final ResourceKey<Registry<MapCodec<? extends DistortionEffect>>> DISTORTION_EFFECT_CODEC_KEY = ResourceKey
-		.createRegistryKey(ResourceLocation.parse("limlib/codec/distortion_effect"));
-	public static final Registry<MapCodec<? extends DistortionEffect>> DISTORTION_EFFECT_CODEC = RegistriesAccessor
-		.callRegisterSimple(DISTORTION_EFFECT_CODEC_KEY, (registry) -> StaticDistortionEffect.CODEC);
-	public static final Codec<DistortionEffect> CODEC = DISTORTION_EFFECT_CODEC
-		.byNameCodec()
-		.dispatchStable(DistortionEffect::getCodec, Function.identity());
+	static void init() {
+		Utils.register(REGISTRY, "static", StaticDistortionEffect.CODEC);
+		DynamicRegistries.register(LimLibRegistries.DISTORTION_EFFECT, DistortionEffect.CODEC);
+	}
 
-	public abstract MapCodec<? extends DistortionEffect> getCodec();
+	MapCodec<? extends DistortionEffect> getCodec();
 
 	/**
 	 * Whether or not a Sound Event should be ignored
 	 *
 	 * @param identifier the Identifier of the Sound Event
 	 */
-	public abstract boolean shouldIgnore(ResourceLocation identifier);
+	boolean shouldIgnore(ResourceLocation identifier);
 
-	public abstract boolean isEnabled(Minecraft client, SoundInstance soundInstance);
+	boolean isEnabled(Minecraft client, SoundInstance soundInstance);
 
-	public abstract float getEdge(Minecraft client, SoundInstance soundInstance);
+	float getEdge(Minecraft client, SoundInstance soundInstance);
 
-	public abstract float getGain(Minecraft client, SoundInstance soundInstance);
+	float getGain(Minecraft client, SoundInstance soundInstance);
 
-	public abstract float getLowpassCutoff(Minecraft client, SoundInstance soundInstance);
+	float getLowpassCutoff(Minecraft client, SoundInstance soundInstance);
 
-	public abstract float getEQCenter(Minecraft client, SoundInstance soundInstance);
+	float getEQCenter(Minecraft client, SoundInstance soundInstance);
 
-	public abstract float getEQBandWidth(Minecraft client, SoundInstance soundInstance);
-
+	float getEQBandWidth(Minecraft client, SoundInstance soundInstance);
 }

@@ -4,14 +4,8 @@
 	"package": "net.ludocrypt.limlib.impl.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"BuiltinDimensionTypesMixin",
 		"ChunkStatusMixin",
-		"GeneratorTypeAccessor",
-		"RegistriesAccessor",
-		"RegistryLoaderMixin",
-		"ServerPlayerEntityMixin",
-		"WorldDimensionsMixin",
-		"WorldSaveStorageMixin"
+		"ServerPlayerEntityMixin"
 	],
 	"client": [
 		"client.BackgroundRendererMixin",

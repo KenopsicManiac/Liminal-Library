@@ -1,7 +1,6 @@
 package net.ludocrypt.limlib.impl.mixin.client;
 
 import com.mojang.blaze3d.platform.Window;
-import java.util.Optional;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +15,6 @@ import net.ludocrypt.limlib.impl.shader.PostProcesserManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.Music;
 
 @Mixin(Minecraft.class)
@@ -36,21 +34,8 @@ public class MinecraftClientMixin {
 	private void limlib$getMusic(CallbackInfoReturnable<Music> ci) {
 
 		if (this.player != null) {
-			Optional<SoundEffects> soundEffects = LookupGrabber
-				.snatch(level.registryAccess().lookup(SoundEffects.SOUND_EFFECTS_KEY).get(),
-					ResourceKey.create(SoundEffects.SOUND_EFFECTS_KEY, level.dimension().location()));
-
-			if (soundEffects.isPresent()) {
-				Optional<Music> musicSound = soundEffects.get().getMusic();
-
-				if (musicSound.isPresent()) {
-					ci.setReturnValue(musicSound.get());
-				}
-
-			}
-
+			LookupGrabber.snatchFromLevel(level, SoundEffects.SOUND_EFFECTS_KEY).flatMap(SoundEffects::music).ifPresent(ci::setReturnValue);
 		}
-
 	}
 
 	@Inject(method = "resizeDisplay", at = @At("RETURN"))

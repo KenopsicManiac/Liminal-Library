@@ -1,26 +1,17 @@
 package net.ludocrypt.limlib.api.effects.post;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 
-public class StaticPostEffect extends PostEffect {
+public record StaticPostEffect(ResourceLocation shaderName) implements PostEffect {
 
-	public static final MapCodec<StaticPostEffect> CODEC = RecordCodecBuilder.mapCodec(instance -> {
-		return instance.group(ResourceLocation.CODEC.fieldOf("shader_name").stable().forGetter((postEffect) -> {
-			return postEffect.shaderName;
-		})).apply(instance, instance.stable(StaticPostEffect::new));
-	});
-
-	private final ResourceLocation shaderName;
-
-	public StaticPostEffect(ResourceLocation shaderLocation) {
-		this.shaderName = shaderLocation;
-	}
+	public static final MapCodec<StaticPostEffect> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+		ResourceLocation.CODEC.fieldOf("shader_name").stable().forGetter(StaticPostEffect::shaderName)
+	).apply(instance, instance.stable(StaticPostEffect::new)));
 
 	@Override
-	public MapCodec<? extends PostEffect> getCodec() {
+	public MapCodec<StaticPostEffect> getCodec() {
 		return CODEC;
 	}
 

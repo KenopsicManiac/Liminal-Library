@@ -82,7 +82,7 @@ public class DistortionFilter {
 					ResourceKey.create(SoundEffects.SOUND_EFFECTS_KEY, client.level.dimension().location()));
 
 			if (soundEffects.isPresent()) {
-				Optional<DistortionEffect> distortion = soundEffects.get().getDistortion();
+				Optional<DistortionEffect> distortion = soundEffects.get().distortion();
 
 				if (distortion.isPresent()) {
 

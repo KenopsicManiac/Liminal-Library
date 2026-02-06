@@ -22,13 +22,12 @@
 		"client": [
 			"net.ludocrypt.limlib.impl.LimlibClient"
 		],
-		"limlib:registrar": [
-			"net.ludocrypt.limlib.impl.debug.DebugWorld"
-		]
+		"fabric-datagen": [
+      "net.ludocrypt.limlib.datagen.DataGenInitalizer"
+    ]
 	},
 	"mixins": [
-		"limlib.mixins.json",
-		"limlib.debug.mixins.json"
+		"limlib.mixins.json"
 	],
 	"accessWidener": "limlib.accesswidener",
 	"custom": {

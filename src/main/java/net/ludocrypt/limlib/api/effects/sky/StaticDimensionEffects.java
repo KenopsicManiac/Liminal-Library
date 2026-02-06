@@ -1,6 +1,5 @@
 package net.ludocrypt.limlib.api.effects.sky;
 
-import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
@@ -17,45 +16,23 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
  * This is a simplification of the base {@link DimensionEffects} class, where
  * each setting is a static, non-changing value
  */
-public class StaticDimensionEffects extends DimensionEffects {
+public record StaticDimensionEffects(Optional<Float> cloudHeight, boolean alternateSkyColor, String skyType,
+									 boolean brightenLighting, boolean darkened, boolean thickFog,
+									 float skyShading) implements DimensionEffects {
 
-	public static final MapCodec<StaticDimensionEffects> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
-		return instance.group(Codec.FLOAT.optionalFieldOf("cloud_height").stable().forGetter((effects) -> {
-			return effects.cloudHeight;
-		}), Codec.BOOL.fieldOf("alternate_sky_color").stable().forGetter((effects) -> {
-			return effects.alternateSkyColor;
-		}), Codec.STRING.fieldOf("sky_type").stable().forGetter((effects) -> {
-			return effects.skyType;
-		}), Codec.BOOL.fieldOf("brighten_lighting").stable().forGetter((effects) -> {
-			return effects.brightenLighting;
-		}), Codec.BOOL.fieldOf("darkened").stable().forGetter((effects) -> {
-			return effects.darkened;
-		}), Codec.BOOL.fieldOf("thick_fog").stable().forGetter((effects) -> {
-			return effects.thickFog;
-		}), Codec.FLOAT.fieldOf("sky_shading").stable().forGetter((effects) -> {
-			return effects.skyShading;
-		})).apply(instance, instance.stable(StaticDimensionEffects::new));
-	});
+	public static final StaticDimensionEffects EMPTY = new StaticDimensionEffects(Optional.empty(), false, "NONE", false, false, false, 1.0f);
 
-	private final Optional<Float> cloudHeight;
-	private final boolean alternateSkyColor;
-	private final String skyType;
-	private final boolean brightenLighting;
-	private final boolean darkened;
-	private final boolean thickFog;
-	private final float skyShading;
+	public static final MapCodec<StaticDimensionEffects> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(
+		Codec.FLOAT.optionalFieldOf("cloud_height").stable().forGetter(StaticDimensionEffects::cloudHeight),
+		Codec.BOOL.optionalFieldOf("alternate_sky_color", false).stable().forGetter(StaticDimensionEffects::alternateSkyColor),
+		Codec.STRING.optionalFieldOf("sky_type", "NONE").stable().forGetter(StaticDimensionEffects::skyType),
+		Codec.BOOL.optionalFieldOf("brighten_lighting", false).stable().forGetter(StaticDimensionEffects::brightenLighting),
+		Codec.BOOL.optionalFieldOf("darkened", false).stable().forGetter(StaticDimensionEffects::darkened),
+		Codec.BOOL.optionalFieldOf("thick_fog", false).stable().forGetter(StaticDimensionEffects::thickFog),
+		Codec.FLOAT.optionalFieldOf("sky_shading", 1.0f).stable().forGetter(StaticDimensionEffects::skyShading)
+	).apply(instance, instance.stable(StaticDimensionEffects::new)));
 
-	public StaticDimensionEffects(Optional<Float> cloudHeight, boolean alternateSkyColor, String skyType,
-			boolean brightenLighting, boolean darkened, boolean thickFog, float skyShading) {
-		this.cloudHeight = cloudHeight;
-		this.alternateSkyColor = alternateSkyColor;
-		this.skyType = skyType;
-		this.brightenLighting = brightenLighting;
-		this.darkened = darkened;
-		this.thickFog = thickFog;
-		this.skyShading = skyShading;
-	}
-
+	@Override
 	public MapCodec<? extends DimensionEffects> getCodec() {
 		return CODEC;
 	}
@@ -68,17 +45,11 @@ public class StaticDimensionEffects extends DimensionEffects {
 		return alternateSkyColor;
 	}
 
-	public String getSkyType() {
-		return skyType;
-	}
 
 	public boolean shouldBrightenLighting() {
 		return brightenLighting;
 	}
 
-	public boolean isDarkened() {
-		return darkened;
-	}
 
 	public boolean hasThickFog() {
 		return thickFog;
@@ -88,13 +59,7 @@ public class StaticDimensionEffects extends DimensionEffects {
 	@Environment(EnvType.CLIENT)
 	public DimensionSpecialEffects getDimensionEffects() {
 		return SkyPropertiesCreator
-			.create(getCloudHeight(), hasAlternateSkyColor(), getSkyType(), shouldBrightenLighting(), isDarkened(),
-				hasThickFog());
+			.create(getCloudHeight(), alternateSkyColor, skyType, brightenLighting, darkened,
+				thickFog);
 	}
-
-	@Override
-	public float getSkyShading() {
-		return skyShading;
-	}
-
 }

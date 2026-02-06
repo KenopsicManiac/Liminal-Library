@@ -3,7 +3,6 @@ package net.ludocrypt.limlib.api.skybox;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
@@ -15,24 +14,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-public class TexturedSkybox extends Skybox {
+public record TexturedSkybox(ResourceLocation identifier) implements Skybox {
 
-	public static final MapCodec<TexturedSkybox> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
-		return instance.group(ResourceLocation.CODEC.fieldOf("skybox").stable().forGetter((sky) -> {
-			return sky.identifier;
-		})).apply(instance, instance.stable(TexturedSkybox::new));
-	});
-
-	public final ResourceLocation identifier;
-
-	public TexturedSkybox(ResourceLocation identifier) {
-		this.identifier = identifier;
-	}
+	public static final MapCodec<TexturedSkybox> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(ResourceLocation.CODEC.fieldOf("skybox").stable().forGetter(TexturedSkybox::identifier)).apply(instance, instance.stable(TexturedSkybox::new)));
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void renderSky(LevelRenderer worldRenderer, Minecraft client, PoseStack matrices,
-			Matrix4f projectionMatrix, float tickDelta) {
+						  Matrix4f projectionMatrix, float tickDelta) {
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.depthMask(Minecraft.useShaderTransparency());
@@ -92,5 +81,4 @@ public class TexturedSkybox extends Skybox {
 	public MapCodec<? extends Skybox> getCodec() {
 		return CODEC;
 	}
-
 }

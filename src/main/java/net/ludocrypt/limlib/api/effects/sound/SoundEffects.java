@@ -7,50 +7,19 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
 import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
+import net.ludocrypt.limlib.impl.Limlib;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.Music;
 
-public class SoundEffects {
+public record SoundEffects(Optional<ReverbEffect> reverb, Optional<DistortionEffect> distortion, Optional<Music> music) {
 
-	public static final ResourceKey<Registry<SoundEffects>> SOUND_EFFECTS_KEY = ResourceKey
-		.createRegistryKey(ResourceLocation.parse("limlib/sound_effects"));
+	public static final ResourceKey<Registry<SoundEffects>> SOUND_EFFECTS_KEY = ResourceKey.createRegistryKey(Limlib.id("sound_effects"));
 
-	public static final Codec<SoundEffects> CODEC = RecordCodecBuilder.create((instance) -> {
-		return instance.group(ReverbEffect.CODEC.optionalFieldOf("reverb").stable().forGetter((soundEffects) -> {
-			return soundEffects.reverb;
-		}), DistortionEffect.CODEC.optionalFieldOf("distortion").stable().forGetter((soundEffects) -> {
-			return soundEffects.distortion;
-		}), Music.CODEC.optionalFieldOf("music").stable().forGetter((soundEffects) -> {
-			return soundEffects.music;
-		})).apply(instance, instance.stable(SoundEffects::new));
-	});
-
-	private final Optional<ReverbEffect> reverb;
-	private final Optional<DistortionEffect> distortion;
-	private final Optional<Music> music;
-
-	public SoundEffects() {
-		this(Optional.empty(), Optional.empty(), Optional.empty());
-	}
-
-	public SoundEffects(Optional<ReverbEffect> reverb, Optional<DistortionEffect> distortion, Optional<Music> music) {
-		this.reverb = reverb;
-		this.distortion = distortion;
-		this.music = music;
-	}
-
-	public Optional<ReverbEffect> getReverb() {
-		return reverb;
-	}
-
-	public Optional<DistortionEffect> getDistortion() {
-		return distortion;
-	}
-
-	public Optional<Music> getMusic() {
-		return music;
-	}
-
+	public static final Codec<SoundEffects> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+		ReverbEffect.CODEC.optionalFieldOf("reverb").stable().forGetter(SoundEffects::reverb),
+		DistortionEffect.CODEC.optionalFieldOf("distortion").stable().forGetter(SoundEffects::distortion),
+		Music.CODEC.optionalFieldOf("music").stable().forGetter(SoundEffects::music)
+	).apply(instance, instance.stable(SoundEffects::new)));
 }

@@ -2,6 +2,7 @@ package net.ludocrypt.limlib.impl.mixin.client;
 
 import java.util.Optional;
 
+import net.ludocrypt.limlib.api.LimLibRegistries;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,12 +20,9 @@ public class DimensionVisualEffectsMixin {
 	@Inject(method = "forType", at = @At("HEAD"), cancellable = true)
 	private static void limlib$byDimensionType(DimensionType dimensionType,
 			CallbackInfoReturnable<DimensionSpecialEffects> ci) {
-		Optional<DimensionEffects> dimensionEffects = LookupGrabber
-			.snatch(DimensionEffects.MIXIN_WORLD_LOOKUP.get(),
-				ResourceKey.create(DimensionEffects.DIMENSION_EFFECTS_KEY, dimensionType.effectsLocation()));
-
-		dimensionEffects.ifPresent(effects -> ci.setReturnValue(effects.getDimensionEffects()));
-
+		LookupGrabber.snatch(DimensionEffects.MIXIN_WORLD_LOOKUP.get(), dimensionType.effectsLocation())
+			.map(DimensionEffects::getDimensionEffects)
+			.ifPresent(ci::setReturnValue);
 	}
 
 }

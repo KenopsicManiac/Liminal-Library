@@ -10,10 +10,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import org.joml.Matrix4f;
 
-public class EmptySkybox extends Skybox {
+public class EmptySkybox implements Skybox {
 
-	public static final MapCodec<EmptySkybox> CODEC = RecordCodecBuilder
-		.mapCodec((instance) -> instance.stable(new EmptySkybox()));
+	public static final MapCodec<EmptySkybox> CODEC = MapCodec.unit(new EmptySkybox());
 
 	@Override
 	@Environment(EnvType.CLIENT)
@@ -25,5 +24,4 @@ public class EmptySkybox extends Skybox {
 	public MapCodec<? extends Skybox> getCodec() {
 		return CODEC;
 	}
-
 }

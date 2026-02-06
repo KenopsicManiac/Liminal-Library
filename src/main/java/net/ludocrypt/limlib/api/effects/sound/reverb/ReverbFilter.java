@@ -121,7 +121,7 @@ public class ReverbFilter {
 					ResourceKey.create(SoundEffects.SOUND_EFFECTS_KEY, client.level.dimension().location()));
 
 			if (soundEffects.isPresent()) {
-				Optional<ReverbEffect> reverb = soundEffects.get().getReverb();
+				Optional<ReverbEffect> reverb = soundEffects.get().reverb();
 
 				if (reverb.isPresent()) {
 
