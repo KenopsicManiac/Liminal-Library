@@ -21,6 +21,22 @@ public record StaticReverbEffect(boolean enabled, float density, float diffusion
 								 float reflectionsGainBase, float lateReverbGainBase, float reflectionsDelay,
 								 float lateReverbDelay, int decayHFLimit) implements ReverbEffect {
 
+	public static final StaticReverbEffect EMPTY = new StaticReverbEffect(
+		true,
+		EXTEfx.AL_REVERB_DEFAULT_DENSITY,
+		EXTEfx.AL_REVERB_DEFAULT_DIFFUSION,
+		EXTEfx.AL_REVERB_DEFAULT_GAIN,
+		EXTEfx.AL_REVERB_DEFAULT_GAINHF,
+		EXTEfx.AL_REVERB_DEFAULT_DECAY_TIME,
+		EXTEfx.AL_REVERB_DEFAULT_DECAY_HFRATIO,
+		EXTEfx.AL_REVERB_DEFAULT_AIR_ABSORPTION_GAINHF,
+		EXTEfx.AL_REVERB_DEFAULT_REFLECTIONS_GAIN,
+		EXTEfx.AL_REVERB_DEFAULT_LATE_REVERB_GAIN,
+		EXTEfx.AL_REVERB_DEFAULT_REFLECTIONS_DELAY,
+		EXTEfx.AL_REVERB_DEFAULT_LATE_REVERB_DELAY,
+		EXTEfx.AL_REVERB_DEFAULT_DECAY_HFLIMIT
+	);
+
 	public static final MapCodec<StaticReverbEffect> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
 		return instance.group(Codec.BOOL.optionalFieldOf("enabled", true).stable().forGetter(StaticReverbEffect::enabled),
 				Utils.floatRangeCodec("density", EXTEfx.AL_REVERB_MIN_DENSITY, EXTEfx.AL_REVERB_MAX_DENSITY, EXTEfx.AL_REVERB_DEFAULT_DENSITY, StaticReverbEffect::density),

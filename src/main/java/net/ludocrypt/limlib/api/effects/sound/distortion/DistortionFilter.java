@@ -14,6 +14,7 @@ import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.EXTEfx;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class DistortionFilter {
@@ -76,39 +77,27 @@ public class DistortionFilter {
 	public static void update(SoundInstance soundInstance, int sourceID) {
 		Minecraft client = Minecraft.getInstance();
 
-		if (!(client == null || client.level == null)) {
-			Optional<SoundEffects> soundEffects = LookupGrabber
-				.snatch(client.level.registryAccess().lookup(SoundEffects.SOUND_EFFECTS_KEY).get(),
-					ResourceKey.create(SoundEffects.SOUND_EFFECTS_KEY, client.level.dimension().location()));
+		if (!(client.level == null)) {
+			LookupGrabber.snatchFromLevel(client.level, SoundEffects.SOUND_EFFECTS_KEY).flatMap(SoundEffects::distortion).ifPresent(distortion -> {
+				if (!distortion.shouldIgnore(soundInstance.getLocation())) {
 
-			if (soundEffects.isPresent()) {
-				Optional<DistortionEffect> distortion = soundEffects.get().distortion();
+					for (int i = 0; i < 2; i++) {
+						AL11.alSourcei(sourceID, EXTEfx.AL_DIRECT_FILTER, 0);
+						AL11
+							.alSource3i(sourceID, EXTEfx.AL_AUXILIARY_SEND_FILTER,
+								update(soundInstance, distortion) ? slot : 0, 0, 0);
+						int error = AL11.alGetError();
 
-				if (distortion.isPresent()) {
-
-					if (!distortion.get().shouldIgnore(soundInstance.getLocation())) {
-
-						for (int i = 0; i < 2; i++) {
-							AL11.alSourcei(sourceID, EXTEfx.AL_DIRECT_FILTER, 0);
-							AL11
-								.alSource3i(sourceID, EXTEfx.AL_AUXILIARY_SEND_FILTER,
-									update(soundInstance, distortion.get()) ? slot : 0, 0, 0);
-							int error = AL11.alGetError();
-
-							if (error == AL11.AL_NO_ERROR) {
-								break;
-							} else {
-								LOGGER.warn("OpenAl Error {}", error);
-							}
-
+						if (error == AL11.AL_NO_ERROR) {
+							break;
+						} else {
+							LOGGER.warn("OpenAl Error {}", error);
 						}
 
 					}
 
 				}
-
-			}
-
+			});
 		}
 
 	}

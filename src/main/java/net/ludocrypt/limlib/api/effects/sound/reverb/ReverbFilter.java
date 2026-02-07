@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.lwjgl.openal.AL10;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.EXTEfx;
 
@@ -95,8 +96,8 @@ public class ReverbFilter {
 					Mth
 						.clamp(
 							soundInstance.getAttenuation() == SoundInstance.Attenuation.LINEAR
-									? 2.0F / (Math.max(soundInstance.getVolume(), 1.0F) + 2.0F)
-									: 0.0F,
+								? 2.0F / (Math.max(soundInstance.getVolume(), 1.0F) + 2.0F)
+								: 0.0F,
 							EXTEfx.AL_REVERB_MIN_ROOM_ROLLOFF_FACTOR, EXTEfx.AL_REVERB_MAX_ROOM_ROLLOFF_FACTOR));
 			EXTEfx
 				.alEffecti(id, EXTEfx.AL_REVERB_DECAY_HFLIMIT,

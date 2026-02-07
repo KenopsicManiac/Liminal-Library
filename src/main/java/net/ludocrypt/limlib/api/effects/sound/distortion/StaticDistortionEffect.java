@@ -20,6 +20,15 @@ import net.minecraft.resources.ResourceLocation;
 public record StaticDistortionEffect(boolean enabled, float edge, float gain, float lowpassCutoff, float eqCenter,
 									 float eqBandWidth) implements DistortionEffect {
 
+	public static final StaticDistortionEffect EMPTY = new StaticDistortionEffect(
+		true,
+		EXTEfx.AL_DISTORTION_DEFAULT_EDGE,
+		EXTEfx.AL_DISTORTION_DEFAULT_GAIN,
+		EXTEfx.AL_DISTORTION_DEFAULT_LOWPASS_CUTOFF,
+		EXTEfx.AL_DISTORTION_DEFAULT_EQCENTER,
+		EXTEfx.AL_DISTORTION_DEFAULT_EQBANDWIDTH
+	);
+
 	public static final MapCodec<StaticDistortionEffect> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance.group(
 			Codec.BOOL.optionalFieldOf("enabled", true).stable().forGetter(StaticDistortionEffect::enabled),
 			Utils.floatRangeCodec("edge", EXTEfx.AL_DISTORTION_MIN_EDGE, EXTEfx.AL_DISTORTION_MAX_EDGE, EXTEfx.AL_DISTORTION_DEFAULT_EDGE, StaticDistortionEffect::edge),

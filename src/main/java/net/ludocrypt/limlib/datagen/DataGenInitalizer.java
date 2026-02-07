@@ -7,6 +7,9 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.ludocrypt.limlib.api.LimLibRegistries;
 import net.ludocrypt.limlib.api.effects.sky.StaticDimensionEffects;
+import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
+import net.ludocrypt.limlib.api.effects.sound.distortion.StaticDistortionEffect;
+import net.ludocrypt.limlib.api.effects.sound.reverb.StaticReverbEffect;
 import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.api.skybox.TexturedSkybox;
 import net.ludocrypt.limlib.impl.Limlib;
@@ -46,6 +49,10 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 					protected void configure(HolderLookup.Provider registries, Entries entries) {
 						entries.add(ResourceKey.create(LimLibRegistries.SKYBOX, ResourceLocation.withDefaultNamespace("overworld")), new TexturedSkybox(Limlib.id("textures/sky/yearning_canal")));
 						entries.add(ResourceKey.create(LimLibRegistries.DIMENSION_EFFECTS, ResourceLocation.withDefaultNamespace("overworld")), StaticDimensionEffects.EMPTY);
+
+						entries.add(ResourceKey.create(SoundEffects.SOUND_EFFECTS_KEY, ResourceLocation.withDefaultNamespace("overworld")), new SoundEffects(Optional.of(new StaticReverbEffect.Builder().setDecayTime(20.0F).build()),
+							Optional.empty(), Optional.empty()));
+
 						registries.lookup(Registries.BIOME).flatMap(a -> a.get(Biomes.THE_VOID)).ifPresent(biome -> {
 							registries.lookup(Registries.DIMENSION_TYPE).flatMap(b -> b.get(BuiltinDimensionTypes.OVERWORLD)).ifPresent(dimension -> {
 								entries.add(DEBUG_KEY, new WorldPreset(

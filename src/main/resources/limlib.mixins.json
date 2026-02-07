@@ -1,24 +1,25 @@
 {
-	"required": true,
-	"minVersion": "0.8",
-	"package": "net.ludocrypt.limlib.impl.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"ChunkStatusMixin",
-		"ServerPlayerEntityMixin"
-	],
-	"client": [
-		"client.BackgroundRendererMixin",
-		"client.ClientWorldMixin",
-		"client.DimensionVisualEffectsMixin",
-		"client.GameRendererMixin",
-		"client.MinecraftClientMixin",
-		"client.SoundSystemMixin",
-		"client.SourceAccessor",
-		"client.WorldRendererAfterMixin",
-		"client.WorldRendererBeforeMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.ludocrypt.limlib.impl.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ChunkStatusMixin",
+    "ServerPlayerEntityMixin"
+  ],
+  "client": [
+    "client.BackgroundRendererMixin",
+    "client.ChannelMixin",
+    "client.ClientWorldMixin",
+    "client.DimensionVisualEffectsMixin",
+    "client.GameRendererMixin",
+    "client.MinecraftClientMixin",
+    "client.SoundSystemMixin",
+    "client.SourceAccessor",
+    "client.WorldRendererAfterMixin",
+    "client.WorldRendererBeforeMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
 	}
 }
