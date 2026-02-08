@@ -6,7 +6,6 @@ import net.ludocrypt.limlib.api.effects.sky.DimensionEffects;
 import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
 import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
 import net.ludocrypt.limlib.api.skybox.Skybox;
-import net.ludocrypt.limlib.impl.Limlib;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

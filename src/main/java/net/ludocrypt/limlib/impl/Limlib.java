@@ -2,19 +2,14 @@ package net.ludocrypt.limlib.impl;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
-import net.fabricmc.loader.api.FabricLoader;
-import net.ludocrypt.limlib.api.LimlibRegistrar;
 import net.ludocrypt.limlib.api.Utils;
 import net.ludocrypt.limlib.api.effects.post.PostEffect;
 import net.ludocrypt.limlib.api.effects.sky.DimensionEffects;
-import net.ludocrypt.limlib.api.effects.sky.StaticDimensionEffects;
 import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
 import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
 import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
-import net.ludocrypt.limlib.api.effects.sound.reverb.StaticReverbEffect;
 import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
@@ -38,9 +33,6 @@ public class Limlib implements ModInitializer {
 		DynamicRegistries.registerSynced(SoundEffects.SOUND_EFFECTS_KEY, SoundEffects.CODEC);
 
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "debug_nbt_chunk_generator", DebugNbtChunkGenerator.CODEC);
-		FabricLoader.getInstance()
-			.getEntrypoints(LimlibRegistrar.ENTRYPOINT_KEY, LimlibRegistrar.class)
-			.forEach(LimlibRegistrar::registerHooks);
 	}
 
 }

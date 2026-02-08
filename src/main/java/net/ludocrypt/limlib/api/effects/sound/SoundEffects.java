@@ -15,7 +15,7 @@ import net.minecraft.sounds.Music;
 
 public record SoundEffects(Optional<ReverbEffect> reverb, Optional<DistortionEffect> distortion, Optional<Music> music) {
 
-	public static final ResourceKey<Registry<SoundEffects>> SOUND_EFFECTS_KEY = ResourceKey.createRegistryKey(Limlib.id("sound_effects"));
+	public static final ResourceKey<Registry<SoundEffects>> SOUND_EFFECTS_KEY = ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("limlib_sound_effects"));
 
 	public static final Codec<SoundEffects> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		ReverbEffect.CODEC.optionalFieldOf("reverb").stable().forGetter(SoundEffects::reverb),
