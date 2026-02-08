@@ -9,6 +9,7 @@ import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.impl.Limlib;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 
 public class LimLibRegistries {
 	public static final ResourceKey<Registry<MapCodec<? extends PostEffect>>> POST_EFFECT_CODEC = key("codec/post_effect");
@@ -23,6 +24,6 @@ public class LimLibRegistries {
 	public static final ResourceKey<Registry<ReverbEffect>> REVERB_EFFECT = key("reverb_effect");
 
 	private static <T> ResourceKey<Registry<T>> key(String name) {
-		return ResourceKey.createRegistryKey(Limlib.id(name));
+		return ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("limlib_" + name));
 	}
 }

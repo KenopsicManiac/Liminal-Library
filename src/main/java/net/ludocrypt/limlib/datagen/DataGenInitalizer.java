@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.ludocrypt.limlib.api.LimLibRegistries;
+import net.ludocrypt.limlib.api.effects.post.StaticPostEffect;
 import net.ludocrypt.limlib.api.effects.sky.StaticDimensionEffects;
 import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
 import net.ludocrypt.limlib.api.effects.sound.distortion.StaticDistortionEffect;
@@ -62,6 +63,8 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 								));
 							});
 						});
+
+						entries.add(ResourceKey.create(LimLibRegistries.POST_EFFECT, ResourceLocation.withDefaultNamespace("overworld")), new StaticPostEffect(Limlib.id("yearning_canal")));
 					}
 
 					@Override
