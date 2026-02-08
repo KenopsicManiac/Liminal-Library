@@ -57,8 +57,9 @@ public abstract class LiminalChunkGenerator extends ChunkGenerator {
 	 * extend through multiple chunks in {@link getPlacementRadius} away.
 	 */
 	public abstract CompletableFuture<ChunkAccess> populateNoise(WorldGenRegion chunkRegion,
-																 ServerLevel world, ChunkGenerator generator,
-																 ChunkAccess chunk);
+																 ServerLevel serverLevel, ChunkGenerator generator,
+																 ChunkAccess chunkAccess, Blender blender,
+																 RandomState randomState, StructureManager structureManager);
 
 	@Override
 	public int getSeaLevel() {
@@ -85,5 +86,4 @@ public abstract class LiminalChunkGenerator extends ChunkGenerator {
 
 		return new NoiseColumn(0, states);
 	}
-
 }

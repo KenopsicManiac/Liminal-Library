@@ -36,6 +36,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 
@@ -61,25 +62,15 @@ public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<ChunkAccess> fillFromNoise(Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunk) {
-		return CompletableFuture.completedFuture(chunk);
-	}
-
-
-	@Override
-	public CompletableFuture<ChunkAccess> populateNoise(WorldGenRegion chunkRegion,
-														ServerLevel world, ChunkGenerator generator,
-														ChunkAccess chunk) {
-
+	public CompletableFuture<ChunkAccess> populateNoise(WorldGenRegion chunkRegion, ServerLevel serverLevel, ChunkGenerator generator, ChunkAccess chunk, Blender blender, RandomState randomState, StructureManager structureManager) {
 		if (chunk.getPos().getWorldPosition().getX() < 0 || chunk.getPos().getWorldPosition().getZ() < 0) {
 			return CompletableFuture.completedFuture(chunk);
 		}
 
-		ResourceManager resourceManager = world.getServer().getResourceManager();
+		ResourceManager resourceManager = serverLevel.getServer().getResourceManager();
 
 		if (positions.isEmpty()) {
-			Map<ResourceLocation, List<Resource>> ids = resourceManager
-				.listResourceStacks("structures/nbt", (id) -> id.getPath().endsWith(".nbt"));
+			Map<ResourceLocation, List<Resource>> ids = StructureTemplateManager.RESOURCE_LISTER.listMatchingResourceStacks(resourceManager);
 			Map<ResourceLocation, NbtPlacerUtil> nbts = new LinkedHashMap<>();
 
 			for (ResourceLocation id : ids.keySet()) {
