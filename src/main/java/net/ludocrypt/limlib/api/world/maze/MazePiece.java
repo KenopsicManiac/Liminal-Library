@@ -47,16 +47,16 @@ public enum MazePiece {
 				Manipulation.TOP_LEFT_BOTTOM_RIGHT, Manipulation.TOP_RIGHT_BOTTOM_LEFT };
 		} else if (state.goesLeft() && state.goesUp() && state.goesRight() && !state.goesDown()) {
 			piece = F;
-			options = new Manipulation[] { Manipulation.CLOCKWISE_90, Manipulation.TOP_RIGHT_BOTTOM_LEFT };
+			options = new Manipulation[] { Manipulation.CLOCKWISE_90, Manipulation.TOP_LEFT_BOTTOM_RIGHT };
 		} else if (state.goesLeft() && state.goesUp() && !state.goesRight() && state.goesDown()) {
 			piece = F;
 			options = new Manipulation[] { Manipulation.NONE, Manipulation.FRONT_BACK };
 		} else if (state.goesLeft() && state.goesUp() && !state.goesRight() && !state.goesDown()) {
 			piece = L;
-			options = new Manipulation[] { Manipulation.NONE, Manipulation.TOP_RIGHT_BOTTOM_LEFT };
+			options = new Manipulation[] { Manipulation.NONE, Manipulation.TOP_LEFT_BOTTOM_RIGHT };
 		} else if (state.goesLeft() && !state.goesUp() && state.goesRight() && state.goesDown()) {
 			piece = F;
-			options = new Manipulation[] { Manipulation.COUNTERCLOCKWISE_90, Manipulation.TOP_LEFT_BOTTOM_RIGHT };
+			options = new Manipulation[] { Manipulation.COUNTERCLOCKWISE_90, Manipulation.TOP_RIGHT_BOTTOM_LEFT };
 		} else if (state.goesLeft() && !state.goesUp() && state.goesRight() && !state.goesDown()) {
 			piece = I;
 			options = new Manipulation[] { Manipulation.CLOCKWISE_90, Manipulation.COUNTERCLOCKWISE_90,
@@ -66,7 +66,7 @@ public enum MazePiece {
 			options = new Manipulation[] { Manipulation.COUNTERCLOCKWISE_90, Manipulation.FRONT_BACK };
 		} else if (state.goesLeft() && !state.goesUp() && !state.goesRight() && !state.goesDown()) {
 			piece = N;
-			options = new Manipulation[] { Manipulation.COUNTERCLOCKWISE_90, Manipulation.TOP_RIGHT_BOTTOM_LEFT };
+			options = new Manipulation[] { Manipulation.COUNTERCLOCKWISE_90, Manipulation.TOP_LEFT_BOTTOM_RIGHT };
 		} else if (!state.goesLeft() && state.goesUp() && state.goesRight() && state.goesDown()) {
 			piece = F;
 			options = new Manipulation[] { Manipulation.CLOCKWISE_180, Manipulation.LEFT_RIGHT };
@@ -82,10 +82,10 @@ public enum MazePiece {
 			options = new Manipulation[] { Manipulation.NONE, Manipulation.LEFT_RIGHT };
 		} else if (!state.goesLeft() && !state.goesUp() && state.goesRight() && state.goesDown()) {
 			piece = L;
-			options = new Manipulation[] { Manipulation.CLOCKWISE_180, Manipulation.TOP_LEFT_BOTTOM_RIGHT };
+			options = new Manipulation[] { Manipulation.CLOCKWISE_180, Manipulation.TOP_RIGHT_BOTTOM_LEFT };
 		} else if (!state.goesLeft() && !state.goesUp() && state.goesRight() && !state.goesDown()) {
 			piece = N;
-			options = new Manipulation[] { Manipulation.CLOCKWISE_90, Manipulation.TOP_LEFT_BOTTOM_RIGHT };
+			options = new Manipulation[] { Manipulation.CLOCKWISE_90, Manipulation.TOP_RIGHT_BOTTOM_LEFT };
 		} else if (!state.goesLeft() && !state.goesUp() && !state.goesRight() && state.goesDown()) {
 			piece = N;
 			options = new Manipulation[] { Manipulation.CLOCKWISE_180, Manipulation.FRONT_BACK };
