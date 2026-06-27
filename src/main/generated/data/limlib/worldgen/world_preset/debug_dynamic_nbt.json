@@ -1,0 +1,10 @@
+{
+  "dimensions": {
+    "minecraft:overworld": {
+      "type": "minecraft:overworld",
+      "generator": {
+        "type": "limlib:debug_dynamic_chunk_generator"
+      }
+    }
+  }
+}

@@ -24,8 +24,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 
 public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
-	public final NbtGroup nbtGroup;
-	public final FunctionMap<ResourceLocation, NbtPlacerUtil, ResourceManager> structures;
+	protected NbtGroup nbtGroup;
+	protected FunctionMap<ResourceLocation, NbtPlacerUtil, ResourceManager> structures;
 
 	public AbstractNbtChunkGenerator(BiomeSource biomeSource, NbtGroup nbtGroup) {
 		this(biomeSource, nbtGroup, new FunctionMap<ResourceLocation, NbtPlacerUtil, ResourceManager>(NbtPlacerUtil::load));
@@ -39,14 +39,28 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 		this.nbtGroup.fill(structures);
 	}
 
+	/**
+	 * Only use this for nbt generation if you aren't extending from {@link AbstractDynamicChunkGenerator},
+	 * and aren't implementing {@link DynamicNbtUpdater}
+	 * @return The standard {@link NbtGroup} object passed into the initializer
+	 * @see DynamicNbtUpdater#getGroup()
+	 * @see AbstractDynamicChunkGenerator#getDynamicGroup()
+	 */
+	public NbtGroup getStandardNbtGroup() {
+		return this.nbtGroup;
+	}
+
+	public FunctionMap<ResourceLocation, NbtPlacerUtil, ResourceManager> getStructures() {
+		return this.structures;
+	}
+
 	public void generateNbt(WorldGenRegion region, BlockPos at, ResourceLocation id) {
 		generateNbt(region, at, id, Manipulation.NONE);
 	}
 
 	public void generateNbt(WorldGenRegion region, BlockPos at, ResourceLocation id, Manipulation manipulation) {
-
 		try {
-			structures
+			getStructures()
 				.eval(id, region.getServer().getResourceManager())
 				.manipulate(manipulation)
 				.generateNbt(region, at, (pos, state, nbt) -> this.modifyStructure(region, pos, state, nbt))
@@ -64,9 +78,8 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 
 	public void generateNbt(WorldGenRegion region, BlockPos offset, BlockPos from, BlockPos to, ResourceLocation id,
 			Manipulation manipulation) {
-
 		try {
-			structures
+			getStructures()
 				.eval(id, region.getServer().getResourceManager())
 				.manipulate(manipulation)
 				.generateNbt(region, offset, from, to, (pos, state, nbt) -> this.modifyStructure(region, pos, state, nbt))

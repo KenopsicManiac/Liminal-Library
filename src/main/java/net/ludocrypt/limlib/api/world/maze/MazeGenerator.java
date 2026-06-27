@@ -20,7 +20,7 @@ public class MazeGenerator<M extends MazeComponent> {
 	/**
 	 * Creates a rectangular maze generator.
 	 * <p>
-	 * 
+	 *
 	 * @param width        of the maze
 	 * @param height       of the maze
 	 * @param thicknessX   of the cells in real world coordinates.
@@ -39,9 +39,8 @@ public class MazeGenerator<M extends MazeComponent> {
 	/**
 	 * Begins generating a maze starting at pos. This should be run in every chunk
 	 * with the pos being the beginning position of the chunk.
-	 * 
+	 *
 	 * @param pos           the starting position for the maze logic to work.
-	 * @param seed          the world seed
 	 * @param mazeCreator   functional interface to create a new maze at a position
 	 * @param cellDecorator funcional interface to generate a single maze block, or
 	 *                      'cell'
