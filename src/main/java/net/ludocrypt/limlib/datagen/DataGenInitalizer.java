@@ -14,6 +14,7 @@ import net.ludocrypt.limlib.api.effects.sound.reverb.StaticReverbEffect;
 import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.api.skybox.TexturedSkybox;
 import net.ludocrypt.limlib.impl.Limlib;
+import net.ludocrypt.limlib.impl.debug.DebugDynamicChunkGenerator;
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -37,6 +38,7 @@ import java.util.function.Consumer;
 
 public class DataGenInitalizer implements DataGeneratorEntrypoint {
 	public static final ResourceKey<WorldPreset> DEBUG_KEY = ResourceKey.create(Registries.WORLD_PRESET, ResourceLocation.fromNamespaceAndPath("limlib", "debug_nbt"));
+	public static final ResourceKey<WorldPreset> DEBUG_DYNAMIC_KEY = ResourceKey.create(Registries.WORLD_PRESET, ResourceLocation.fromNamespaceAndPath("limlib", "debug_dynamic_nbt"));
 
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
@@ -50,6 +52,11 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 						entries.add(DEBUG_KEY, new WorldPreset(
 							Map.of(LevelStem.OVERWORLD, new LevelStem(
 								dimension, new DebugNbtChunkGenerator(biome)
+							))
+						));
+						entries.add(DEBUG_DYNAMIC_KEY, new WorldPreset(
+							Map.of(LevelStem.OVERWORLD, new LevelStem(
+								dimension, new DebugDynamicChunkGenerator(biome)
 							))
 						));
 					});
@@ -68,7 +75,7 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 				return new FabricTagProvider<WorldPreset>(output, Registries.WORLD_PRESET, registriesFuture) {
 					@Override
 					protected void addTags(HolderLookup.Provider wrapperLookup) {
-						this.tag(WorldPresetTags.EXTENDED).addOptional(DEBUG_KEY.location());
+						this.tag(WorldPresetTags.EXTENDED).addOptional(DEBUG_KEY.location()).addOptional(DEBUG_DYNAMIC_KEY.location());
 					}
 				};
 			}
