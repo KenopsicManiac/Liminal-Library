@@ -40,13 +40,10 @@ public abstract class AbstractNbtChunkGenerator extends LiminalChunkGenerator {
 	}
 
 	/**
-	 * Only use this for nbt generation if you aren't extending from {@link AbstractDynamicChunkGenerator},
-	 * and aren't implementing {@link DynamicNbtUpdater}
-	 * @return The standard {@link NbtGroup} object passed into the initializer
-	 * @see DynamicNbtUpdater#getGroup()
-	 * @see AbstractDynamicChunkGenerator#getDynamicGroup()
+	 * Use this to get the {@link NbtGroup} of the chunk generator in public context.
+	 * It is preferred that you simply use the nbtGroup variable when extending {@link AbstractNbtChunkGenerator} instead.
 	 */
-	public NbtGroup getStandardNbtGroup() {
+	public NbtGroup getNbtGroup() {
 		return this.nbtGroup;
 	}
 

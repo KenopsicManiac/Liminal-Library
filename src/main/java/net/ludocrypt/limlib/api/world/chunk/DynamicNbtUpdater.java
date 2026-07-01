@@ -11,7 +11,7 @@ public interface DynamicNbtUpdater {
 	 * as it handles most of the boilerplate for this automatically
 	 * @return the {@link NbtGroup} intended for nbt generation
 	 * @see AbstractDynamicChunkGenerator
-	 * @see AbstractNbtChunkGenerator#getStandardNbtGroup()
+	 * @see AbstractNbtChunkGenerator#getNbtGroup()
 	 */
 	NbtGroup getGroup();
 

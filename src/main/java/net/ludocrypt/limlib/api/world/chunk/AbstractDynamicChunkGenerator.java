@@ -18,7 +18,7 @@ public abstract class AbstractDynamicChunkGenerator extends AbstractNbtChunkGene
 		try {
 			return getDynamicGroup();
 		} catch (Exception e) {
-			return getStandardNbtGroup();
+			return getNbtGroup();
 		}
 	}
 

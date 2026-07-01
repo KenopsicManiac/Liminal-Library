@@ -54,7 +54,7 @@ public abstract class LiminalChunkGenerator extends ChunkGenerator {
 	/**
 	 * An extention of the base populateNoise method but with more variables. Use
 	 * ChunkRegion as opposed to world when setting blocks, as it allows you to
-	 * extend through multiple chunks in {@link getPlacementRadius} away.
+	 * extend through multiple chunks in {@link LiminalChunkGenerator#getPlacementRadius()} away.
 	 */
 	public abstract CompletableFuture<ChunkAccess> populateNoise(WorldGenRegion chunkRegion,
 																 ServerLevel serverLevel, ChunkGenerator generator,
