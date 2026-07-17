@@ -121,6 +121,8 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
 
         NeoForge.EVENT_BUS.addListener(this::addReloaders);
         bus.addListener(this::addPackFinders);
+
+        common.init(self());
     }
 
     private void onDataPackRegister(DataPackRegistryEvent.NewRegistry event) {
@@ -395,18 +397,14 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
         serverPackets.forEach(packet -> packet.register(registrar));
     }
 
-    private static List<Triple<ResourceLocation, BiConsumer<HolderLookup.Provider, ResourceManager>, Boolean>> loaders = new ArrayList<>();
+    private final List<Triple<ResourceLocation, BiConsumer<HolderLookup.Provider, ResourceManager>, Boolean>> loaders = new ArrayList<>();
 
     public Path getConfigRoot() {
         return FMLPaths.CONFIGDIR.get();
     }
 
-    public void initBuiltinPacks() {
-        NeoForge.EVENT_BUS.addListener(this::addReloaders);
-//        FMLJavaModLoadingContext.get().getModEventBus().addListener(DimensionalDoorsImpl::addPackFinders);
-    }
 
-    private static Map<PackType, List<PackInfo>> packs = new HashMap<>();
+    private final Map<PackType, List<PackInfo>> packs = new HashMap<>();
 
     private record PackInfo(String id, String name, boolean defaultedOn) {
         public Pack create(String modId, PackType type) {
@@ -431,7 +429,7 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
     }
 
     public void addReloaders(AddReloadListenerEvent event) {
-        loaders.forEach(pair -> event.addListener(new NeoforgeResourceLoader.Server(pair.getMiddle())));
+        loaders.forEach(pair -> event.addListener(new NeoforgeResourceLoader.Server(pair.getLeft(), pair.getMiddle())));
     }
 
 	public void registerServerLoader(String name, BiConsumer<HolderLookup.Provider, ResourceManager> consumer, boolean loadAfterTags) {

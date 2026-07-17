@@ -29,13 +29,6 @@ ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.limlib]]
-modId = "kotlinforforge"
-type = "required"
-versionRange = "[${kotlin_for_forge_version},)"
-ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.limlib]]
 modId = "minecraft"
 type = "required"
 versionRange = "${minecraft_version_range}"

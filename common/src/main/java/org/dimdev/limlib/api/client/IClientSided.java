@@ -1,11 +1,9 @@
 package org.dimdev.limlib.api.client;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.block.Block;
 
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 

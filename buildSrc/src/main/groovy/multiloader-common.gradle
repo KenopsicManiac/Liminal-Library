@@ -187,3 +187,25 @@ publishing {
         }
     }
 }
+
+def mavenLocalPublicationPath = providers.provider {
+    "${project.group.toString().replace('.', '/')}/${base.archivesName.get()}"
+}
+
+tasks.register('purgeMavenLocalPublication', Delete) {
+    group = 'publishing'
+    description = "Deletes this module's published artifact directory from Maven local."
+
+    delete providers.provider {
+        var configuredRepo = System.getProperty('maven.repo.local')
+        var repoRoot = configuredRepo == null || configuredRepo.isBlank()
+                ? new File(System.getProperty('user.home'), '.m2/repository')
+                : file(configuredRepo)
+
+        new File(repoRoot, mavenLocalPublicationPath.get())
+    }
+}
+
+tasks.named('publishMavenJavaPublicationToMavenLocal') {
+//    dependsOn(tasks.named('purgeMavenLocalPublication'))
+}

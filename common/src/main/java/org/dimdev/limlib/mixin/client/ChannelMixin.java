@@ -24,7 +24,7 @@ public abstract class ChannelMixin implements ChannelExt {
     }
 
 	@Override
-	public int getSource() {
+	public int liminal_Library$getSource() {
 		return source;
 	}
 }

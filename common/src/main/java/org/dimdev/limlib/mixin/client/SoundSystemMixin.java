@@ -57,7 +57,7 @@ public abstract class SoundSystemMixin implements SoundSystemAccess {
 	@WrapOperation(method = "play", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/sounds/ChannelAccess$ChannelHandle;execute(Ljava/util/function/Consumer;)V"))
 	private static void play(ChannelAccess.ChannelHandle instance, Consumer<Channel> action, Operation<Void> original, @Local(argsOnly = true) SoundInstance soundInstance) {
 		instance.execute(channel -> {
-			var id = ((ChannelExt) channel).getSource();
+			var id = ((ChannelExt) channel).liminal_Library$getSource();
 			ReverbFilter.update(soundInstance, id);
 			DistortionFilter.update(soundInstance, id);
 		});

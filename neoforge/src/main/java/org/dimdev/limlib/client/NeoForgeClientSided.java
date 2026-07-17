@@ -9,7 +9,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.Component;
@@ -40,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -49,10 +47,11 @@ public class NeoForgeClientSided<V extends NeoForgeClientSided<V, T>, T extends 
 	private List<ModelLoadingRegistration> modelLoadingOverrides = new ArrayList<>();
     private final List<Runnable> loginRunnables = new ArrayList<>();
 	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
-	private List<Pair<ResourceLocation, Consumer<ResourceManager>>> loaders;
+	private final List<Pair<ResourceLocation, Consumer<ResourceManager>>> loaders = new ArrayList<>();
 
 	public NeoForgeClientSided(IEventBus bus, ModContainer container, T client) {
 		this.client = client;
+		client.init(self());
         client.initModels((id, consumer) -> modelLoadingOverrides.add(new ModelLoadingRegistration(id, consumer)));
 
         bus.<RegisterParticleProvidersEvent>addListener(event -> client.initParticles(new ModClient.RegularParticleRegister() {
@@ -138,7 +137,7 @@ public class NeoForgeClientSided<V extends NeoForgeClientSided<V, T>, T extends 
 	}
 
 	public void addReloaders(RegisterClientReloadListenersEvent event) {
-		loaders.forEach(pair -> event.registerReloadListener(new NeoforgeResourceLoader.Client(pair.getValue())));
+		loaders.forEach(pair -> event.registerReloadListener(new NeoforgeResourceLoader.Client(pair.getLeft(), pair.getValue())));
 	}
 
 	public record FluidExtension(ResourceLocation flowing, ResourceLocation still, ResourceLocation overlay) implements IClientFluidTypeExtensions {
