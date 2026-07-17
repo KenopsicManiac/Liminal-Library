@@ -1,0 +1,43 @@
+modLoader = "javafml"
+loaderVersion = "${neoforge_loader_version_range}"
+# issueTrackerURL = ""
+license = "${license}"
+
+[[mods]]
+modId = "limlib"
+version = "${version}"
+displayName = "${mod_name}"
+# updateJSONURL = "https://change.me.example.invalid/updates.json"
+# displayURL = "https://change.me.to.your.mods.homepage.example.invalid/"
+credits = "${credits}"
+authors = "${neoforge_mod_authors}"
+#enumExtensions = "META-INF/limlib.enumextensions.json"
+description = '''${description}'''
+logoFile = "assets/limlib/icon.png"
+
+[[mixins]]
+config = "limlib.mixins.json"
+
+[[mixins]]
+config = "limlib.neoforge.mixins.json"
+
+[[dependencies.limlib]]
+modId = "neoforge"
+type = "required"
+versionRange = "[${neoforge_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.limlib]]
+modId = "kotlinforforge"
+type = "required"
+versionRange = "[${kotlin_for_forge_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.limlib]]
+modId = "minecraft"
+type = "required"
+versionRange = "${minecraft_version_range}"
+ordering = "NONE"
+side = "BOTH"

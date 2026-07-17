@@ -1,0 +1,17 @@
+{
+  "pool": "limlib:debug_dynamic",
+  "sub_pools": {
+    "stone": [
+      "default_stone",
+      "data_stone"
+    ],
+    "nether": [
+      "default_nether",
+      "data_nether"
+    ],
+    "end": [
+      "default_end",
+      "data_end"
+    ]
+  }
+}

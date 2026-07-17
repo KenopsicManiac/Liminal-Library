@@ -1,0 +1,47 @@
+{
+    "schemaVersion": 1,
+    "id": "${mod_id}",
+    "version": "${version}",
+    "name": "${mod_name}",
+    "description": "${description}",
+    "authors": [
+        "${fabric_mod_authors}"
+    ],
+    "contact": {
+      "homepage": "https://github.com/LudoCrypt/Liminal-Library/wiki",
+      "issues": "https://github.com/LudoCrypt/Liminal-Library/issues",
+      "sources": "https://github.com/LudoCrypt/Liminal-Library"
+    },
+    "license": "${license}",
+    "icon": "assets/limlib/icon.png",
+    "environment": "*",
+    "accessWidener": "limlib.accesswidener",
+    "entrypoints": {
+      "main": [
+        "org.dimdev.limlib.LimLibFabric"
+      ],
+      "client": [
+        "org.dimdev.limlib.client.LimLibFabricClient"
+      ],
+      "fabric-datagen": [
+        "org.dimdev.limlib.datagen.DataGenInitalizer"
+      ]
+    },
+    "mixins": [
+        "limlib.mixins.json",
+        "limlib.fabric.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=${fabric_loader_version}",
+        "fabric-api": "*",
+        "minecraft": "${minecraft_version}",
+        "java": ">=${java_version}"
+    },
+    "custom": {
+      "modmenu": {
+        "badges": [
+          "library"
+        ]
+      }
+    }
+}

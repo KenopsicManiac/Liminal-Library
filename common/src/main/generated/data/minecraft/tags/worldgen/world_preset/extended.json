@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "limlib:debug_nbt",
+      "required": false
+    },
+    {
+      "id": "limlib:debug_dynamic_nbt",
+      "required": false
+    }
+  ]
+}

@@ -17,13 +17,13 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"net.ludocrypt.limlib.impl.Limlib"
+			"org.dimdev.limlib.impl.Limlib"
 		],
 		"client": [
-			"net.ludocrypt.limlib.impl.LimlibClient"
+			"org.dimdev.limlib.impl.LimlibClient"
 		],
 		"fabric-datagen": [
-      "net.ludocrypt.limlib.datagen.DataGenInitalizer"
+      "org.dimdev.limlib.datagen.DataGenInitalizer"
     ]
 	},
 	"mixins": [
