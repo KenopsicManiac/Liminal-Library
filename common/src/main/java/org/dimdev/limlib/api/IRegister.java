@@ -3,6 +3,7 @@ package org.dimdev.limlib.api;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.particles.ParticleType;
@@ -18,10 +19,12 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -34,17 +37,23 @@ import org.apache.commons.lang3.function.TriConsumer;
 import org.dimdev.limlib.util.DataValue;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface IRegister {
-    <T, V extends T> V register(ResourceKey<Registry<T>> key, ResourceLocation id, V obj);
+	<T> void registerCallback(Registry<T> key, TriConsumer<Registry<T>, ResourceLocation, T> consumer);
 
-    <T> void registerCallback(Registry<T> key, TriConsumer<Registry<T>, ResourceLocation, T> consumer);
+	<T, V extends T> V register(ResourceKey<Registry<T>> key, String id, V obj);
+	<T, V extends T> V register(ResourceKey<Registry<T>> key, ResourceLocation id, V obj);
+	<T, V extends T> Holder<T> registerHolder(ResourceKey<Registry<T>> key, String id, V obj);
+	<T, V extends T> Holder<T> registerHolder(ResourceKey<Registry<T>> key, ResourceLocation id, V obj);
 
-     <T, V extends T> V register(ResourceKey<Registry<T>> key, String id, V obj);
 
-    default <T extends Item> T registerItem(String id, T obj) {
+	default <T extends Item> T registerItem(String id, T obj) {
         return register(Registries.ITEM, id, obj);
     }
 
@@ -142,9 +151,91 @@ public interface IRegister {
 
     void registerRunnable(ResourceKey<? extends Registry<?>> key, Runnable runnable);
 
-    <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key);
+    <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key, ResourceLocation defaultId, boolean sync);
+
+	default <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key, ResourceLocation defaultId) {
+		return createRegistry(key, defaultId, false);
+	}
+
+	default <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key, boolean sync) {
+		return createRegistry(key, null, sync);
+	}
+
+	default <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key) {
+		return createRegistry(key, null, false);
+	}
 
     <T> DataValue<T> registerDataValue(String fray, Supplier<T> defaultValue, Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec);
 
     void registerRunDataValue(Runnable runnable);
+
+	void modifyCreativeTab(ResourceKey<CreativeModeTab> tab, Consumer<CreativeTabEntries> consumer);
+
+	interface CreativeTabEntries extends CreativeModeTab.Output {
+		void addAfter(ItemStack after, Collection<ItemStack> stacks, CreativeModeTab.TabVisibility visibility);
+
+		default void addAfter(ItemStack after, Collection<ItemStack> stacks) {
+			addAfter(after, stacks, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+		}
+
+		default void addAfter(ItemStack after, ItemStack... stacks) {
+			addAfter(after, List.of(stacks));
+		}
+
+		default void addAfter(ItemLike after, Collection<ItemStack> stacks, CreativeModeTab.TabVisibility visibility) {
+			addAfter(stack(after), stacks, visibility);
+		}
+
+		default void addAfter(ItemLike after, Collection<ItemStack> stacks) {
+			addAfter(stack(after), stacks);
+		}
+
+		default void addAfter(ItemLike after, ItemStack... stacks) {
+			addAfter(stack(after), List.of(stacks));
+		}
+
+		default void addAfter(ItemLike after, ItemLike... items) {
+			addAfter(stack(after), stacks(items));
+		}
+
+		void addBefore(ItemStack before, Collection<ItemStack> stacks, CreativeModeTab.TabVisibility visibility);
+
+		default void addBefore(ItemStack before, Collection<ItemStack> stacks) {
+			addBefore(before, stacks, CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+		}
+
+		default void addBefore(ItemStack before, ItemStack... stacks) {
+			addBefore(before, List.of(stacks));
+		}
+
+		default void addBefore(ItemLike before, Collection<ItemStack> stacks, CreativeModeTab.TabVisibility visibility) {
+			addBefore(stack(before), stacks, visibility);
+		}
+
+		default void addBefore(ItemLike before, Collection<ItemStack> stacks) {
+			addBefore(stack(before), stacks);
+		}
+
+		default void addBefore(ItemLike before, ItemStack... stacks) {
+			addBefore(stack(before), List.of(stacks));
+		}
+
+		default void addBefore(ItemLike before, ItemLike... items) {
+			addBefore(stack(before), stacks(items));
+		}
+
+		private static ItemStack stack(ItemLike item) {
+			return new ItemStack(item);
+		}
+
+		private static List<ItemStack> stacks(ItemLike... items) {
+			List<ItemStack> stacks = new ArrayList<>(items.length);
+
+			for (ItemLike item : items) {
+				stacks.add(stack(item));
+			}
+
+			return stacks;
+		}
+	}
 }

@@ -5,6 +5,8 @@
   "minVersion": "0.8",
   "refmap": "dimdoors.refmap.json",
   "mixins": [
+    "ChunkStatusMixin",
+    "ServerPlayerEntityMixin",
     "accessor.BlockEntityTypeAccessor"
   ],
   "client": [

@@ -2,6 +2,7 @@ package org.dimdev.limlib.impl;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -28,4 +29,9 @@ public abstract class SidedImpl<V extends SidedImpl<V, T>, T extends ModCommon<?
     public <T, V extends T> V register(ResourceKey<Registry<T>> key, String id, V obj) {
         return register(key, ResourceLocation.fromNamespaceAndPath(getModId(), id), obj);
     }
+
+	@Override
+	public <T, V extends T> Holder<T> registerHolder(ResourceKey<Registry<T>> key, String id, V obj) {
+		return registerHolder(key, ResourceLocation.fromNamespaceAndPath(getModId(), id), obj);
+	}
 }

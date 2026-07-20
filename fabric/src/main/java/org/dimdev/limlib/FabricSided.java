@@ -13,6 +13,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
+import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
@@ -21,11 +22,15 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.fabricmc.fabric.api.registry.StrippableBlockRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.fabric.api.resource.ResourceReloadListenerKeys;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -48,6 +53,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 import org.apache.commons.lang3.function.TriConsumer;
 import org.dimdev.limlib.impl.SidedImpl;
 import org.dimdev.limlib.util.DataValue;
@@ -56,6 +63,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.*;
@@ -102,6 +110,15 @@ public abstract class FabricSided<V extends FabricSided<V, S>, S extends ModComm
         Registry.register(registry, id, obj);
         return obj;
     }
+
+	public <U, R extends U> Holder<U> registerHolder(ResourceKey<Registry<U>> key, ResourceLocation id, R obj) {
+		Registry<U> registry = (Registry<U>) BuiltInRegistries.REGISTRY.get(key.location());
+		if (registry == null) {
+			throw new IllegalArgumentException("Unknown registry: " + key.location());
+		}
+
+		return Registry.registerForHolder(registry, id, obj);
+	}
 
     @Override
     public <T> void registerCallback(Registry<T> registry, TriConsumer<Registry<T>, ResourceLocation, T> consumer) {
@@ -249,11 +266,15 @@ public abstract class FabricSided<V extends FabricSided<V, S>, S extends ModComm
     public void registerServerLoader(String name, BiConsumer<HolderLookup.Provider, ResourceManager> consumer, boolean loadAfterTags) {
         var id = ResourceLocation.fromNamespaceAndPath(getModId(), name);
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(id, provider -> new FabricResourceLoader(id, manager -> consumer.accept(provider, manager), loadAfterTags ? List.of(ResourceReloadListenerKeys.TAGS) : List.of()));
-    }
+	}
 
 	@Override
-    public <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key) {
-        return FabricRegistryBuilder.createSimple(key).buildAndRegister();
+    public <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key, ResourceLocation defaultId, boolean sync) {
+		var builder = defaultId != null ? FabricRegistryBuilder.createDefaulted(key, defaultId) : FabricRegistryBuilder.createSimple(key);
+
+		if(sync) builder.attribute(RegistryAttribute.SYNCED);
+
+        return builder.buildAndRegister();
     }
 
     @Override
@@ -298,4 +319,51 @@ public abstract class FabricSided<V extends FabricSided<V, S>, S extends ModComm
     public void addPack(PackType type, String id, String name, boolean defaultedOn) {
         ResourceManagerHelper.registerBuiltinResourcePack(ResourceLocation.fromNamespaceAndPath(getModId(), id), FabricLoader.getInstance().getModContainer(getModId()).get(), Component.literal(name), defaultedOn ? ResourcePackActivationType.DEFAULT_ENABLED : ResourcePackActivationType.NORMAL);
     }
+
+	@Override
+	public void registerStrippable(Block source, Block target) {
+		StrippableBlockRegistry.register(source, target);
+	}
+
+	@Override
+	public void registerFuel(ItemLike item, int amount) {
+		FuelRegistry.INSTANCE.add(item, amount);
+	}
+
+	@Override
+	public void registryFlammable(Block block, int encouragement, int flammability) {
+		FlammableBlockRegistry.getDefaultInstance().add(block, encouragement, flammability);
+	}
+
+	@Override
+	public void modifyCreativeTab(ResourceKey<CreativeModeTab> tab, Consumer<CreativeTabEntries> consumer) {
+		ItemGroupEvents.modifyEntriesEvent(tab).register(entries -> consumer.accept(new FabricCreativeTabEntries(entries)));
+	}
+
+	private record FabricCreativeTabEntries(FabricItemGroupEntries entries) implements CreativeTabEntries {
+		@Override
+		public void accept(ItemStack stack, CreativeModeTab.TabVisibility visibility) {
+			entries.accept(stack, visibility);
+		}
+
+		@Override
+		public void addAfter(ItemStack after, Collection<ItemStack> stacks, CreativeModeTab.TabVisibility visibility) {
+			if (after.isEmpty()) {
+				acceptAll(stacks, visibility);
+				return;
+			}
+
+			entries.addAfter(after, stacks, visibility);
+		}
+
+		@Override
+		public void addBefore(ItemStack before, Collection<ItemStack> stacks, CreativeModeTab.TabVisibility visibility) {
+			if (before.isEmpty()) {
+				acceptAll(stacks, visibility);
+				return;
+			}
+
+			entries.addBefore(before, stacks, visibility);
+		}
+	}
 }

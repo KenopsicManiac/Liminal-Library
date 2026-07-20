@@ -21,7 +21,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.RecipeBookType;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -52,6 +55,14 @@ public interface ISided<T extends ISided<T>> extends IRegister, ICreativeTabHand
 
     Path getConfigRoot();
 
+    default <C extends Config> C loadConfig(Class<C> configClass) {
+        return Config.load(this, configClass);
+    }
+
+    default <C extends Config> C createConfig(Class<C> configClass) {
+        return Config.createInstance(configClass);
+    }
+
     public void registerServerLoader(String name, BiConsumer<HolderLookup.Provider, ResourceManager> consumer, boolean loadAfterTags);
 
 
@@ -79,6 +90,11 @@ public interface ISided<T extends ISided<T>> extends IRegister, ICreativeTabHand
 	}
 
     String getModId();
+
+	void registryFlammable(Block block, int encouragement, int flammability);
+	void registerStrippable(Block source, Block target);
+	void registerFuel(ItemLike item, int amount);
+
 
     @FunctionalInterface
     interface AttackBlockCallback {

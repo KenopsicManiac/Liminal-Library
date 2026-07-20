@@ -1,4 +1,4 @@
-package org.dimdev.limlib.impl.mixin;
+package org.dimdev.limlib.mixin;
 
 import net.minecraft.world.level.portal.DimensionTransition;
 import org.spongepowered.asm.mixin.Mixin;

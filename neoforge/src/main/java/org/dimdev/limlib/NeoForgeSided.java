@@ -2,7 +2,10 @@ package org.dimdev.limlib;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.serialization.Codec;
+import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,9 +29,12 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -36,6 +42,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
@@ -44,6 +51,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
@@ -71,20 +79,25 @@ import java.util.function.*;
 public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends ModCommon<? super V>> extends SidedImpl<V, T> {
     private final List<Consumer<BuildCreativeModeTabContentsEvent>> BUILD_CONTENTS_LISTENERS = new ArrayList<>();
     private final Map<ResourceKey<?>, Map<ResourceLocation, Object>> toRegister = new HashMap<>();
-    private final Map<ResourceKey<?>, Map<ResourceLocation, Object>> toRegisterHolder = new HashMap<>();
+    private final Map<ResourceKey<?>, Map<ResourceLocation, HolderRegistration<?>>> toRegisterHolder = new HashMap<>();
     private final Map<ResourceKey<?>, AddCallback<?>> callbacks = new HashMap<>();
     private final IEventBus bus;
     private ResourceKey<? extends Registry<?>> activeKey;
     private final Map<ResourceKey<?>, List<Runnable>> registerRunnables = new HashMap<>();
-    private List<Registry<?>> registriesToRegister = new ArrayList<>();
-    private final List<EntityAttributeRegistration> entityAttributeRegistrations = new ArrayList<>();
-    private final List<DataPackRegistryRegistration<?>> dataPackRegistries = new ArrayList<>();
+	private final List<Registry<?>> registriesToRegister = new ArrayList<>();
+	private final List<EntityAttributeRegistration> entityAttributeRegistrations = new ArrayList<>();
+	private final List<DataPackRegistryRegistration<?>> dataPackRegistries = new ArrayList<>();
+	private final Object2IntMap<ItemLike> fuels = new Object2IntLinkedOpenHashMap<>();
+	private final Map<Block, Block> strippables = new HashMap<>();
+	private List<CreativeTabModifier> creativeTabModifiers;
 
-    public NeoForgeSided(IEventBus bus, T common) {
+	public NeoForgeSided(IEventBus bus, T common) {
         super(common);
         this.bus = bus;
 
-        bus.addListener(this::buildCreateTabContents);
+		bus.addListener(this::modifyCreativeTabContents);
+
+		bus.addListener(this::buildCreateTabContents);
         bus.addListener(this::onEntityAttributeRegister);
 
         bus.addListener(this::onDataPackRegister);
@@ -112,6 +125,11 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
                 if (map != null && !map.isEmpty()) {
                     populate(registry, map);
                 }
+
+                var holderMap = toRegisterHolder.remove(key);
+                if (holderMap != null && !holderMap.isEmpty()) {
+                    populateHolders(registry, holderMap);
+                }
             } finally {
                 NeoForgeSided.this.activeKey = null;
             }
@@ -120,10 +138,30 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
         bus.<RegisterPayloadHandlersEvent>addListener(this::registerPackets);
 
         NeoForge.EVENT_BUS.addListener(this::addReloaders);
+		NeoForge.EVENT_BUS.addListener(this::getFuelBurnTime);
+		NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, this::modifyBlockWithTool);
         bus.addListener(this::addPackFinders);
 
         common.init(self());
     }
+
+	private void modifyBlockWithTool(BlockEvent.BlockToolModificationEvent event) {
+		if (event.getItemAbility() != ItemAbilities.AXE_STRIP || event.getFinalState() != event.getState()) {
+			return;
+		}
+
+		Block target = strippables.get(event.getState().getBlock());
+		if (target != null) {
+			event.setFinalState(target.withPropertiesOf(event.getState()));
+		}
+	}
+
+	private void getFuelBurnTime(FurnaceFuelBurnTimeEvent event) {
+		Integer burnTime = fuels.get(event.getItemStack().getItem());
+		if (burnTime != null) {
+			event.setBurnTime(burnTime);
+		}
+	}
 
     private void onDataPackRegister(DataPackRegistryEvent.NewRegistry event) {
         dataPackRegistries.forEach(registration -> registration.register(event));
@@ -141,6 +179,10 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
 
     public <T> void populate(Registry<T> registry, Map<ResourceLocation, Object> map) {
         map.forEach((resourceLocation, obj) -> Registry.register(registry, resourceLocation, (T) obj));
+    }
+
+    public <T> void populateHolders(Registry<T> registry, Map<ResourceLocation, HolderRegistration<?>> map) {
+        map.forEach((resourceLocation, registration) -> ((HolderRegistration<T>) registration).register(registry, resourceLocation));
     }
 
     @Override
@@ -202,6 +244,39 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
             return obj;
         }
     }
+
+	@Override
+	public <T, V extends T> Holder<T> registerHolder(ResourceKey<Registry<T>> key, ResourceLocation id, V obj) {
+		if (key.equals(activeKey)) {
+			return Registry.registerForHolder((Registry<T>) BuiltInRegistries.REGISTRY.get(key.location()), id, obj);
+		} else {
+			Map<ResourceLocation, HolderRegistration<?>> map = this.toRegisterHolder.computeIfAbsent(key, a -> new HashMap<>());
+			HolderRegistration<T> registration = (HolderRegistration<T>) map.computeIfAbsent(id, ignored -> new HolderRegistration<>(obj, BindableDeferredHolder.createBindable(key, id)));
+
+			return registration.holder();
+		}
+	}
+
+	private record HolderRegistration<T>(T obj, BindableDeferredHolder<T, ? extends T> holder) {
+		private void register(Registry<T> registry, ResourceLocation id) {
+			Registry.registerForHolder(registry, id, obj);
+			holder.bind();
+		}
+	}
+
+	private static class BindableDeferredHolder<R, T extends R> extends DeferredHolder<R, T> {
+		private BindableDeferredHolder(ResourceKey<R> key) {
+			super(key);
+		}
+
+		private static <R, T extends R> BindableDeferredHolder<R, T> createBindable(ResourceKey<? extends Registry<R>> registryKey, ResourceLocation id) {
+			return new BindableDeferredHolder<>(ResourceKey.create(registryKey, id));
+		}
+
+		private void bind() {
+			bind(false);
+		}
+	}
 
     @Override
     public <T> void registerCallback(Registry<T> registry, TriConsumer<Registry<T>, ResourceLocation, T> consumer) {
@@ -346,10 +421,11 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
     }
 
     @Override
-    public <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key) {
+    public <T> Registry<T> createRegistry(ResourceKey<Registry<T>> key, ResourceLocation defaultId, boolean sync) {
 
 
-        var registry = new RegistryBuilder<>(key).create();
+        var registry =new RegistryBuilder<>(key).sync(sync).defaultKey(defaultId).create();
+
         registriesToRegister.add(registry);
 
         return registry;
@@ -466,4 +542,82 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
     public <T> void createDynamicRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, Codec<T> networkCodec) {
         dataPackRegistries.add(new DataPackRegistryRegistration<>(key, codec, networkCodec));
     }
+
+	@Override
+	public void registerStrippable(Block source, Block target) {
+		strippables.put(source, target);
+	}
+
+	@Override
+	public void registerFuel(ItemLike item, int amount) {
+		fuels.put(item, amount);
+	}
+
+	@Override
+	public void registryFlammable(Block block, int encouragement, int flammability) {
+		((FireBlock) Blocks.FIRE).setFlammable(block, encouragement, flammability);
+	}
+
+	@Override
+	public void modifyCreativeTab(ResourceKey<CreativeModeTab> tab, Consumer<CreativeTabEntries> consumer) {
+		creativeTabModifiers().add(new CreativeTabModifier(tab, consumer));
+	}
+
+	@Override
+	public String getModId() {
+		return "corners";
+	}
+
+	private List<CreativeTabModifier> creativeTabModifiers() {
+		if (creativeTabModifiers == null) {
+			creativeTabModifiers = new ArrayList<>();
+		}
+
+		return creativeTabModifiers;
+	}
+
+	private void modifyCreativeTabContents(BuildCreativeModeTabContentsEvent event) {
+		for (CreativeTabModifier modifier : creativeTabModifiers()) {
+			if (event.getTabKey().equals(modifier.tab())) {
+				modifier.consumer().accept(new NeoForgeCreativeTabEntries(event));
+			}
+		}
+	}
+
+	private record CreativeTabModifier(ResourceKey<CreativeModeTab> tab, Consumer<CreativeTabEntries> consumer) {
+	}
+
+	private record NeoForgeCreativeTabEntries(BuildCreativeModeTabContentsEvent event) implements CreativeTabEntries {
+		@Override
+		public void accept(ItemStack stack, CreativeModeTab.TabVisibility visibility) {
+			event.accept(stack, visibility);
+		}
+
+		@Override
+		public void addAfter(ItemStack after, Collection<ItemStack> stacks, CreativeModeTab.TabVisibility visibility) {
+			if (after.isEmpty()) {
+				acceptAll(stacks, visibility);
+				return;
+			}
+
+			ItemStack previous = after;
+
+			for (ItemStack stack : stacks) {
+				event.insertAfter(previous, stack, visibility);
+				previous = stack;
+			}
+		}
+
+		@Override
+		public void addBefore(ItemStack before, Collection<ItemStack> stacks, CreativeModeTab.TabVisibility visibility) {
+			if (before.isEmpty()) {
+				acceptAll(stacks, visibility);
+				return;
+			}
+
+			for (ItemStack stack : stacks) {
+				event.insertBefore(before, stack, visibility);
+			}
+		}
+	}
 }
