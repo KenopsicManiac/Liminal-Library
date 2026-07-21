@@ -4,6 +4,7 @@
   "package": "org.dimdev.limlib.client.specialmodels.mixin.sodium",
   "plugin": "org.dimdev.limlib.client.specialmodels.mixin.SpecialModelsSodiumMixinPlugin",
   "compatibilityLevel": "JAVA_16",
+  "refmap": "limlib.refmap.json",
   "client": [
     "ChunkBuilderTaskAccessor",
     "ChunkBuilderMeshingTaskMixin",

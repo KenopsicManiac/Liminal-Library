@@ -28,12 +28,12 @@
       ]
     },
     "mixins": [
-        "limlib.mixins.json",
-        "limlib.fabric.mixins.json",
-        "limlib-specialmodels.mixins.json",
-        "limlib-specialmodels-fabric.mixins.json",
-        "limlib-specialmodels-iris.mixins.json",
-        "limlib-specialmodels-sodium.mixins.json"
+      "limlib.mixins.json",
+      "limlib.fabric.mixins.json",
+      "limlib.specialmodels.mixins.json",
+      "limlib.specialmodels-fabric.mixins.json",
+      "limlib.specialmodels-iris.mixins.json",
+      "limlib.specialmodels-sodium.mixins.json"
     ],
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",

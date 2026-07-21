@@ -22,16 +22,16 @@ config = "limlib.mixins.json"
 config = "limlib.neoforge.mixins.json"
 
 [[mixins]]
-config = "limlib-specialmodels.mixins.json"
+config = "limlib.specialmodels.mixins.json"
 
 [[mixins]]
-config = "limlib-specialmodels-neoforge.mixins.json"
+config = "limlib.specialmodels-neoforge.mixins.json"
 
 [[mixins]]
-config = "limlib-specialmodels-iris.mixins.json"
+config = "limlib.specialmodels-iris.mixins.json"
 
 [[mixins]]
-config = "limlib-specialmodels-sodium.mixins.json"
+config = "limlib.specialmodels-sodium.mixins.json"
 
 [[dependencies.limlib]]
 modId = "neoforge"

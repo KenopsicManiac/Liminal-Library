@@ -3,7 +3,7 @@
   "package": "org.dimdev.limlib.mixin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
-  "refmap": "dimdoors.refmap.json",
+  "refmap": "limlib.refmap.json",
   "mixins": [
     "ChunkStatusMixin",
     "ServerPlayerEntityMixin",
