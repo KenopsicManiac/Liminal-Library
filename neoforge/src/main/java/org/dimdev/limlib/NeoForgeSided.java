@@ -563,11 +563,6 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
 		creativeTabModifiers().add(new CreativeTabModifier(tab, consumer));
 	}
 
-	@Override
-	public String getModId() {
-		return "corners";
-	}
-
 	private List<CreativeTabModifier> creativeTabModifiers() {
 		if (creativeTabModifiers == null) {
 			creativeTabModifiers = new ArrayList<>();
