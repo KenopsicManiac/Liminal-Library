@@ -234,7 +234,7 @@ public abstract class FabricSided<V extends FabricSided<V, S>, S extends ModComm
 
     @Override
     public <T> DataValue<T> registerDataValue(String name, Supplier<T> defaultValue, Codec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {
-        return (DataValue<T>) AttachmentRegistry.create(ResourceLocation.fromNamespaceAndPath(getModId(), name), new Consumer<AttachmentRegistry.Builder<T>>() {
+        return (DataValue<T>) AttachmentRegistry.create(ResourceLocation.fromNamespaceAndPath(common.getModId(), name), new Consumer<AttachmentRegistry.Builder<T>>() {
             @Override
             public void accept(AttachmentRegistry.Builder<T> builder) {
                 builder.initializer(defaultValue);
@@ -264,7 +264,7 @@ public abstract class FabricSided<V extends FabricSided<V, S>, S extends ModComm
     }
 
     public void registerServerLoader(String name, BiConsumer<HolderLookup.Provider, ResourceManager> consumer, boolean loadAfterTags) {
-        var id = ResourceLocation.fromNamespaceAndPath(getModId(), name);
+        var id = ResourceLocation.fromNamespaceAndPath(common.getModId(), name);
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(id, provider -> new FabricResourceLoader(id, manager -> consumer.accept(provider, manager), loadAfterTags ? List.of(ResourceReloadListenerKeys.TAGS) : List.of()));
 	}
 
@@ -317,7 +317,7 @@ public abstract class FabricSided<V extends FabricSided<V, S>, S extends ModComm
 
     @Override
     public void addPack(PackType type, String id, String name, boolean defaultedOn) {
-        ResourceManagerHelper.registerBuiltinResourcePack(ResourceLocation.fromNamespaceAndPath(getModId(), id), FabricLoader.getInstance().getModContainer(getModId()).get(), Component.literal(name), defaultedOn ? ResourcePackActivationType.DEFAULT_ENABLED : ResourcePackActivationType.NORMAL);
+        ResourceManagerHelper.registerBuiltinResourcePack(ResourceLocation.fromNamespaceAndPath(common.getModId(), id), FabricLoader.getInstance().getModContainer(common.getModId()).get(), Component.literal(name), defaultedOn ? ResourcePackActivationType.DEFAULT_ENABLED : ResourcePackActivationType.NORMAL);
     }
 
 	@Override

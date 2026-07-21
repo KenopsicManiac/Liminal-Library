@@ -11,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import org.dimdev.limlib.api.ISided;
 import org.dimdev.limlib.api.ModCommon;
 
+import java.nio.file.Path;
+
 public abstract class SidedImpl<V extends SidedImpl<V, T>, T extends ModCommon<? super V>> implements ISided<V> {
     protected final T common;
 
@@ -27,11 +29,16 @@ public abstract class SidedImpl<V extends SidedImpl<V, T>, T extends ModCommon<?
 
     @Override
     public <T, V extends T> V register(ResourceKey<Registry<T>> key, String id, V obj) {
-        return register(key, ResourceLocation.fromNamespaceAndPath(getModId(), id), obj);
+        return register(key, ResourceLocation.fromNamespaceAndPath(common.getModId(), id), obj);
     }
 
 	@Override
 	public <T, V extends T> Holder<T> registerHolder(ResourceKey<Registry<T>> key, String id, V obj) {
-		return registerHolder(key, ResourceLocation.fromNamespaceAndPath(getModId(), id), obj);
+		return registerHolder(key, ResourceLocation.fromNamespaceAndPath(common.getModId(), id), obj);
+	}
+
+	@Override
+	public Path configPath() {
+		return getConfigRoot().resolve(common.getModId() + "-config.json");
 	}
 }

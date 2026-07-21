@@ -52,4 +52,8 @@ public enum Limlib implements ModCommon<ISided<?>> {
 		});
 	}
 
+	@Override
+	public String getModId() {
+		return "limlib";
+	}
 }

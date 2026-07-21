@@ -16,6 +16,8 @@ def includeCompile(entry) {
 
 dependencies {
     implementation "maven.modrinth:kotlin-for-forge:${kotlin_for_forge_version}"
+    implementation "maven.modrinth:sodium:${sodium_version}-neoforge"
+    implementation "maven.modrinth:iris:${iris_version}-neoforge"
 }
 
 neoForge {

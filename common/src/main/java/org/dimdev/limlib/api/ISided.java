@@ -89,14 +89,13 @@ public interface ISided<T extends ISided<T>> extends IRegister, ICreativeTabHand
 		createDynamicRegistry(key, codec, null);
 	}
 
-    String getModId();
-
 	void registryFlammable(Block block, int encouragement, int flammability);
 	void registerStrippable(Block source, Block target);
 	void registerFuel(ItemLike item, int amount);
 
+	Path configPath();
 
-    @FunctionalInterface
+	@FunctionalInterface
     interface AttackBlockCallback {
         InteractionResult attack(Player player, InteractionHand hand, BlockPos pos, Direction direction);
     }

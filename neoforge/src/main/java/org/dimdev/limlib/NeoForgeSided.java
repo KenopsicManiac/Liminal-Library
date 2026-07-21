@@ -497,7 +497,7 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
     public void addPackFinders(AddPackFindersEvent event) {
         var type = event.getPackType();
 
-        var modId = this.getModId();
+        var modId = common.getModId();
 
         event.addRepositorySource(source -> {
             packs.getOrDefault(type, Collections.emptyList()).stream().map(a -> a.create(modId, type)).forEach(source);
@@ -509,7 +509,7 @@ public abstract class NeoForgeSided<V extends NeoForgeSided<V, T>, T extends Mod
     }
 
 	public void registerServerLoader(String name, BiConsumer<HolderLookup.Provider, ResourceManager> consumer, boolean loadAfterTags) {
-		loaders.add(Triple.of(ResourceLocation.fromNamespaceAndPath(getModId(), name), consumer, loadAfterTags));
+		loaders.add(Triple.of(ResourceLocation.fromNamespaceAndPath(common.getModId(), name), consumer, loadAfterTags));
 	}
 
 

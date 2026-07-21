@@ -24,28 +24,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Config {
-    private static final String FILE_NAME = "dimdoors-config.json5";
     private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(new TypeToken<ResourceKey<Level>>() {}.getType(), new LevelKeyAdapter())
             .create();
 
-    public static Path getConfigPath(Path configRoot) {
-        return configRoot.resolve(FILE_NAME);
-    }
 
     public static <T extends Config> T load(ISided<?> sided, Class<T> configClass) {
-        return load(configClass, getConfigPath(sided.getConfigRoot()), sided.getModId());
+        return load(configClass, sided.configPath());
     }
 
-    public static <T extends Config> T load(ISided<?> sided, Class<T> configClass, Path configRoot) {
-        return load(configClass, getConfigPath(configRoot), sided.getModId());
-    }
 
-    private static <T extends Config> T load(Class<T> configClass, Path configPath, String modId) {
+    private static <T extends Config> T load(Class<T> configClass, Path configPath) {
         if (!Files.exists(configPath)) {
             T config = createInstance(configClass);
-            save(config, configPath, modId);
+            save(config, configPath);
             return config;
         }
 
@@ -53,7 +46,7 @@ public class Config {
             T config = GSON.fromJson(reader, configClass);
             return config == null ? createInstance(configClass) : config;
         } catch (IOException | JsonParseException e) {
-            throw new IllegalStateException("Failed to load " + modId + " config from " + configPath, e);
+            throw new IllegalStateException("Failed to load " + configPath.getFileName() + " config from " + configPath, e);
         }
     }
 
@@ -68,17 +61,17 @@ public class Config {
     }
 
     public void save(ISided<?> sided) {
-        save(this, getConfigPath(sided.getConfigRoot()), sided.getModId());
+        save(this, sided.configPath());
     }
 
-    private static void save(Config config, Path configPath, String modId) {
+    private static void save(Config config, Path configPath) {
         try {
             Files.createDirectories(configPath.getParent());
             try (BufferedWriter writer = Files.newBufferedWriter(configPath)) {
                 writer.write(GSON.toJson(config));
             }
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to save " + modId + " config to " + configPath, e);
+            throw new IllegalStateException("Failed to save " + configPath.getFileName() + " to " + configPath, e);
         }
     }
 

@@ -17,12 +17,12 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.level.block.state.BlockState;
-import net.ludocrypt.corners.client.CornersClientSided;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dimdev.limlib.client.specialmodels.mixin.MultiPartBakedModelAccessor;
 import org.dimdev.limlib.client.specialmodels.mixin.WeightedBakedModelAccessor;
+import org.dimdev.limlib.impl.client.LimLibClientSided;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -45,7 +45,7 @@ public final class SpecialModelLoadingPlugin {
     private static final String SPECIAL_MODELS_KEY = "specialmodels";
     private static Function<BakedModel, @Nullable BakedModel> wrappedModelGetter = model -> null;
 
-    public static void init(CornersClientSided<?> sided) {
+    public static void init(LimLibClientSided<?> sided) {
         wrappedModelGetter = sided::getWrappedBakedModel;
         sided.registerSpecialModelLoadingPlugin();
     }

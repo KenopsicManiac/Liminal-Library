@@ -9,9 +9,4 @@ public class LimLibFabric extends FabricSided<LimLibFabric, Limlib> {
 	public LimLibFabric() {
 		super(Limlib.INSTANCE);
 	}
-
-	@Override
-	public String getModId() {
-		return "limlib";
-	}
 }

@@ -1,12 +1,11 @@
 package org.dimdev.limlib.client.specialmodels.compat.iris;
 
-
-import net.ludocrypt.corners.TheCorners;
+import org.dimdev.limlib.impl.Limlib;
 
 public final class IrisCompat {
 
     public static boolean shouldDisableSpecialModelRenderTypes() {
-        if (!TheCorners.getSided().isModLoaded("iris")) {
+        if (!Limlib.getSided().isModLoaded("iris")) {
             return false;
         }
 

@@ -9,9 +9,4 @@ public class LimLibNeoforge extends NeoForgeSided<LimLibNeoforge, Limlib> {
 	public LimLibNeoforge(IEventBus bus) {
 		super(bus, Limlib.INSTANCE);
 	}
-
-	@Override
-	public String getModId() {
-		return "limlib";
-	}
 }
