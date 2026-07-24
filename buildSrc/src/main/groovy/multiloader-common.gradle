@@ -32,7 +32,10 @@ repositories {
     maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
     maven { url = "https://mvn.devos.one/snapshots" } // Registrate
     maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" } // ForgeConfigAPIPort
-
+	maven {
+		name "CaffeineMC"
+		url "https://maven.caffeinemc.net/releases" // or /snapshots
+	}
     // sable/csim requirements
     maven { url = "https://maven.theillusivec4.top/" } // Curios API
     maven {
@@ -142,6 +145,9 @@ processResources {
             .collect { it.trim() }
             .findAll { !it.isEmpty() }
 
+    def minimumVersion = { version ->
+        version.toString().replaceFirst(/\+.*/, '')
+    }
 
     var expandProps = [
             'version'                      : version,
@@ -160,6 +166,8 @@ processResources {
             'neoforge_version'             : neoforge_version,
             'neoforge_loader_version_range': neoforge_loader_version_range,
             'kotlin_for_forge_version'     : kotlin_for_forge_version,
+            'sodium_min_version'           : minimumVersion(sodium_version),
+            'iris_min_version'             : minimumVersion(iris_version),
             'credits'                      : credits,
             'java_version'                 : java_version
     ]

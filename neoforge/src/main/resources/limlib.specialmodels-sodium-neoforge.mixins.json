@@ -6,8 +6,7 @@
   "compatibilityLevel": "JAVA_16",
   "refmap": "limlib.refmap.json",
   "client": [
-    "ChunkBuilderTaskAccessor",
-    "RenderSectionMixin"
+    "ChunkBuilderMeshingTaskMixin"
   ],
   "injectors": {
     "defaultRequire": 0

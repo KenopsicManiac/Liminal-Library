@@ -51,28 +51,12 @@ public class ChunkBuilderMeshingTaskMixin {
             target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderer;renderModel(Lnet/minecraft/client/resources/model/BakedModel;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;)V",
             shift = At.Shift.AFTER),
         require = 0)
-    private void corners$renderSpecialModelPartsNamed(ChunkBuildContext context, CancellationToken cancellationToken,
-                                                      CallbackInfoReturnable<ChunkBuildOutput> cir,
-                                                      @Local(index = 6) BlockRenderCache cache,
-                                                      @Local(index = 7) LevelSlice levelSlice,
-                                                      @Local(index = 14) BlockPos.MutableBlockPos blockPos,
-                                                      @Local(index = 21) BlockState blockState) {
-        this.corners$renderSpecialModelParts(cache, levelSlice, blockPos, blockState);
-    }
-
-    @Inject(
-        method = "execute(Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lnet/caffeinemc/mods/sodium/client/util/task/CancellationToken;)Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockRenderer;renderModel(Lnet/minecraft/class_1087;Lnet/minecraft/class_2680;Lnet/minecraft/class_2338;Lnet/minecraft/class_2338;)V",
-            shift = At.Shift.AFTER),
-        require = 0)
-    private void corners$renderSpecialModelPartsIntermediary(ChunkBuildContext context, CancellationToken cancellationToken,
-                                                             CallbackInfoReturnable<ChunkBuildOutput> cir,
-                                                             @Local(index = 6) BlockRenderCache cache,
-                                                             @Local(index = 7) LevelSlice levelSlice,
-                                                             @Local(index = 14) BlockPos.MutableBlockPos blockPos,
-                                                             @Local(index = 21) BlockState blockState) {
+    private void corners$renderSpecialModelParts(ChunkBuildContext context, CancellationToken cancellationToken,
+                                                 CallbackInfoReturnable<ChunkBuildOutput> cir,
+                                                 @Local(index = 6) BlockRenderCache cache,
+                                                 @Local(index = 7) LevelSlice levelSlice,
+                                                 @Local(index = 14) BlockPos.MutableBlockPos blockPos,
+                                                 @Local(index = 22) BlockState blockState) {
         this.corners$renderSpecialModelParts(cache, levelSlice, blockPos, blockState);
     }
 

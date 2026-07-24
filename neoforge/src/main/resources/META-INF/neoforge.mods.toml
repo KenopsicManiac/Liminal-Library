@@ -33,6 +33,9 @@ config = "limlib.specialmodels-iris.mixins.json"
 [[mixins]]
 config = "limlib.specialmodels-sodium.mixins.json"
 
+[[mixins]]
+config = "limlib.specialmodels-sodium-neoforge.mixins.json"
+
 [[dependencies.limlib]]
 modId = "neoforge"
 type = "required"
@@ -46,3 +49,17 @@ type = "required"
 versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.limlib]]
+modId = "sodium"
+type = "optional"
+versionRange = "[${sodium_min_version},)"
+ordering = "NONE"
+side = "CLIENT"
+
+[[dependencies.limlib]]
+modId = "iris"
+type = "optional"
+versionRange = "[${iris_min_version},)"
+ordering = "NONE"
+side = "CLIENT"

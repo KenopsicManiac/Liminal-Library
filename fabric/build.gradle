@@ -20,7 +20,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     modImplementation "net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}"
-    modImplementation "maven.modrinth:sodium:${sodium_version}-fabric"
+    modImplementation "net.caffeinemc:sodium-fabric:${sodium_version}"
     modImplementation "maven.modrinth:iris:${iris_version}-fabric"
 }
 

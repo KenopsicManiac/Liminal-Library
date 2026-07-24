@@ -33,13 +33,18 @@
       "limlib.specialmodels.mixins.json",
       "limlib.specialmodels-fabric.mixins.json",
       "limlib.specialmodels-iris.mixins.json",
-      "limlib.specialmodels-sodium.mixins.json"
+      "limlib.specialmodels-sodium.mixins.json",
+      "limlib.specialmodels-sodium-fabric.mixins.json"
     ],
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",
         "fabric-api": "*",
         "minecraft": "${minecraft_version}",
         "java": ">=${java_version}"
+    },
+    "breaks": {
+        "sodium": "<${sodium_min_version}",
+        "iris": "<${iris_min_version}"
     },
     "custom": {
       "modmenu": {
