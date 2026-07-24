@@ -24,7 +24,9 @@ public abstract class LevelRendererMixin {
 
     @Inject(method = "renderSectionLayer", at = @At("HEAD"), cancellable = true)
     private void corners$renderSpecialModelLayers(RenderType renderType, double x, double y, double z, Matrix4f modelViewMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
-		if(renderingSpecialModels) ci.cancel();
+		if (renderingSpecialModels) {
+			return;
+		}
 
         if (IrisCompat.shouldDisableSpecialModelRenderTypes()) {
             if (SpecialModelRenderTypes.isKnownSpecialModelRenderType(renderType)) {

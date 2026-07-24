@@ -24,9 +24,17 @@ dependencies {
 
 repositories {
     mavenCentral()
-    maven {
-        name = "RyanHCode Maven"
-        url = "https://maven.ryanhcode.dev/releases"
+    exclusiveContent { // Sable
+        forRepository {
+            maven {
+                name = "RyanHCode Maven"
+                url = "https://maven.ryanhcode.dev/releases"
+            }
+        }
+        filter {
+            includeGroup("dev.ryanhcode.sable")
+            includeGroup("dev.ryanhcode.sable-companion")
+        }
     }
 
     maven { url = "https://maven.createmod.net" } // Create, Ponder, Flywheel
@@ -168,6 +176,7 @@ processResources {
             'kotlin_for_forge_version'     : kotlin_for_forge_version,
             'sodium_min_version'           : minimumVersion(sodium_version),
             'iris_min_version'             : minimumVersion(iris_version),
+            'sable_version'                : sable_version,
             'credits'                      : credits,
             'java_version'                 : java_version
     ]

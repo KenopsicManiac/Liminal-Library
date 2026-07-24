@@ -33,6 +33,8 @@
       "limlib.specialmodels.mixins.json",
       "limlib.specialmodels-fabric.mixins.json",
       "limlib.specialmodels-iris.mixins.json",
+      "limlib.specialmodels-sable.mixins.json",
+      "limlib.specialmodels-sable-sodium.mixins.json",
       "limlib.specialmodels-sodium.mixins.json",
       "limlib.specialmodels-sodium-fabric.mixins.json"
     ],
@@ -41,6 +43,9 @@
         "fabric-api": "*",
         "minecraft": "${minecraft_version}",
         "java": ">=${java_version}"
+    },
+    "suggests": {
+        "sable": ">=${sable_version}"
     },
     "breaks": {
         "sodium": "<${sodium_min_version}",
