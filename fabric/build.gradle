@@ -22,6 +22,10 @@ dependencies {
 		exclude group: "net.fabricmc", module: "fabric-loader"
 	}
 	modCompileOnly "maven.modrinth:iris:${iris_version}-fabric"
+
+	modCompileOnly("dev.ryanhcode.sable:sable-fabric-${project.minecraft_version}:${project.sable_version}") {
+		exclude group: "net.fabricmc", module: "fabric-loader"
+	}
 }
 
 loom {

@@ -16,6 +16,9 @@ def includeCompile(entry) {
 dependencies {
 	compileOnly  "net.caffeinemc:sodium-neoforge-mod:${sodium_version}"
 	compileOnly  "maven.modrinth:iris:${iris_version}-neoforge"
+	compileOnly("dev.ryanhcode.sable:sable-neoforge-${project.minecraft_version}:${project.sable_version}") {
+		exclude group: "foundry.veil"
+	}
 }
 
 neoForge {
