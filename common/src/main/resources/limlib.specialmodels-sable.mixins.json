@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "org.dimdev.limlib.client.specialmodels.mixin.sable",
+  "plugin": "org.dimdev.limlib.client.specialmodels.mixin.SpecialModelsSableMixinPlugin",
+  "compatibilityLevel": "JAVA_16",
+  "refmap": "limlib.refmap.json",
+  "client": [
+    "RenderSectionMixin",
+    "VanillaSingleSubLevelRenderDataMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

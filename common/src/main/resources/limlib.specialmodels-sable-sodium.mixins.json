@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "org.dimdev.limlib.client.specialmodels.mixin.sable.sodium",
+  "plugin": "org.dimdev.limlib.client.specialmodels.mixin.SpecialModelsSableSodiumMixinPlugin",
+  "compatibilityLevel": "JAVA_16",
+  "refmap": "limlib.refmap.json",
+  "client": [
+    "SodiumWorldRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
