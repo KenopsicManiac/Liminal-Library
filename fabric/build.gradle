@@ -1,5 +1,4 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
     id 'multiloader-loader'
     id 'fabric-loom'
 }
@@ -19,9 +18,10 @@ dependencies {
 	}
 	modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    modImplementation "net.fabricmc:fabric-language-kotlin:${fabric_kotlin_version}"
-    modImplementation "net.caffeinemc:sodium-fabric:${sodium_version}"
-    modImplementation "maven.modrinth:iris:${iris_version}-fabric"
+	modCompileOnly ("net.caffeinemc:sodium-fabric:${sodium_version}") {
+		exclude group: "net.fabricmc", module: "fabric-loader"
+	}
+	modCompileOnly "maven.modrinth:iris:${iris_version}-fabric"
 }
 
 loom {
@@ -70,4 +70,57 @@ loom {
             }
         }
     }
+}
+
+tasks.register("traceFabricLoaderOrigins") {
+	doLast {
+		configurations.findAll { configuration ->
+			configuration.canBeResolved &&
+				(configuration.name.toLowerCase().contains("mod") ||
+					configuration.name.toLowerCase().contains("runtime"))
+		}.each { configuration ->
+			try {
+				def root = configuration.incoming.resolutionResult.rootComponent.get()
+				def paths = []
+
+				def visit
+				visit = { component, path, seen ->
+					component.dependencies.each { dependency ->
+						if (!(dependency instanceof org.gradle.api.artifacts.result.ResolvedDependencyResult)) {
+							return
+						}
+
+						def selected = dependency.selected
+						def module = selected.moduleVersion
+						def edge = "${dependency.requested.displayName} -> ${selected.id.displayName}"
+						def nextPath = path + edge
+
+						if (module?.group == "net.fabricmc" &&
+							module.name == "fabric-loader") {
+							paths << nextPath
+							return
+						}
+
+						def nextSeen = new LinkedHashSet(seen)
+						if (nextSeen.add(selected.id)) {
+							visit(selected, nextPath, nextSeen)
+						}
+					}
+				}
+
+				visit(root, [], [root.id] as Set)
+
+				if (!paths.empty) {
+					println "\n=== ${configuration.name} ==="
+
+					paths.each { path ->
+						println path.collect { "  ${it}" }.join("\n")
+						println()
+					}
+				}
+			} catch (Exception ignored) {
+				// Some Loom configurations cannot be resolved independently.
+			}
+		}
+	}
 }

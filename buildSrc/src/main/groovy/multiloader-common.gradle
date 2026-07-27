@@ -13,15 +13,6 @@ java {
     withJavadocJar()
 }
 
-kotlin {
-    jvmToolchain(Integer.parseInt(java_version.toString()))
-}
-
-dependencies {
-    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}"
-    api "org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}"
-}
-
 repositories {
     mavenCentral()
     maven {
@@ -156,7 +147,6 @@ processResources {
             'minecraft_version_range'      : minecraft_version_range,
             'fabric_version'               : fabric_version,
             'fabric_loader_version'        : fabric_loader_version,
-            'fabric_kotlin_version'        : fabric_kotlin_version,
             'mod_name'                     : mod_name,
             'fabric_mod_authors'           : authors_as_list,
             'neoforge_mod_authors'         : mod_authors,
@@ -165,7 +155,6 @@ processResources {
             'description'                  : project.description,
             'neoforge_version'             : neoforge_version,
             'neoforge_loader_version_range': neoforge_loader_version_range,
-            'kotlin_for_forge_version'     : kotlin_for_forge_version,
             'sodium_min_version'           : minimumVersion(sodium_version),
             'iris_min_version'             : minimumVersion(iris_version),
             'credits'                      : credits,
