@@ -33,6 +33,10 @@ public enum Limlib implements ModCommon<ISided<?>> {
 		return sided;
 	}
 
+	public static boolean isModLoaded(String modid) {
+		return sided != null && sided.isModLoaded(modid);
+	}
+
 	@Override
 	public void init(ISided<?> sided) {
 		Limlib.sided = sided;

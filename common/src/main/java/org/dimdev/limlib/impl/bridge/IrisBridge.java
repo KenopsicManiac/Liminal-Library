@@ -7,11 +7,11 @@ import java.lang.reflect.Method;
 
 public class IrisBridge {
 
-	public static final boolean IRIS_LOADED = Limlib.getSided().isModLoaded("iris");
+	public static final boolean IRIS_LOADED = Limlib.isModLoaded("iris");
 
 	public static boolean areShadersInUse() {
 
-		if (IRIS_LOADED) {
+		if (Limlib.isModLoaded("iris")) {
 
 			try {
 				Class<?> irisApi = Class.forName("net.irisshaders.iris.apiimpl.IrisApiV0Impl");
