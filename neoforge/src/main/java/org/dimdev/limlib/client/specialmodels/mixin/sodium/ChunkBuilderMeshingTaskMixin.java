@@ -56,13 +56,14 @@ public class ChunkBuilderMeshingTaskMixin {
                                                  @Local(index = 6) BlockRenderCache cache,
                                                  @Local(index = 7) LevelSlice levelSlice,
                                                  @Local(index = 14) BlockPos.MutableBlockPos blockPos,
+                                                 @Local(index = 15) BlockPos.MutableBlockPos localBlockPos,
                                                  @Local(index = 22) BlockState blockState) {
-        this.corners$renderSpecialModelParts(cache, levelSlice, blockPos, blockState);
+        this.corners$renderSpecialModelParts(cache, levelSlice, blockPos, localBlockPos, blockState);
     }
 
     @Unique
     private void corners$renderSpecialModelParts(BlockRenderCache cache, LevelSlice levelSlice, BlockPos.MutableBlockPos blockPos,
-                                                 BlockState blockState) {
+                                                 BlockPos.MutableBlockPos localBlockPos, BlockState blockState) {
         if (IrisCompat.shouldDisableSpecialModelRenderTypes()) {
             return;
         }
@@ -80,7 +81,7 @@ public class ChunkBuilderMeshingTaskMixin {
         }
 
         PoseStack poseStack = new PoseStack();
-        poseStack.translate(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+        poseStack.translate(localBlockPos.getX(), localBlockPos.getY(), localBlockPos.getZ());
         int light = LevelRenderer.getLightColor(levelSlice, blockState, blockPos);
 
         for (SpecialModelPart specialModelPart : specialModelParts) {

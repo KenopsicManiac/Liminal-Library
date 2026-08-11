@@ -14,8 +14,19 @@ import org.dimdev.limlib.api.client.ModClient;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import static org.dimdev.limlib.impl.Limlib.LOGGER;
+
 public enum LimlibClient implements ModClient<LimLibClientSided<?>> {
 	INSTANCE;
+
+	@Override
+	public void delayedInit() {
+		try {
+			System.loadLibrary("renderdoc");
+		} catch (UnsatisfiedLinkError e) {
+			LOGGER.warn("Attempted to use renderdoc without renderdoc installed.");
+		}
+	}
 
 	@Override
 	public void init(LimLibClientSided<?> sided) {

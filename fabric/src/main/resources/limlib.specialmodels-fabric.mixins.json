@@ -4,6 +4,7 @@
   "package": "org.dimdev.limlib.client.specialmodels.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
+    "GameRendererMixin",
     "SectionCompilerMixin"
   ],
   "refmap": "limlib.refmap.json",

@@ -19,7 +19,6 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.network.chat.Component;
@@ -35,7 +34,9 @@ import org.dimdev.limlib.api.client.IClientSided;
 import org.dimdev.limlib.api.client.ModClient;
 import org.dimdev.limlib.api.client.ModClient.RegularParticleRegister;
 import org.dimdev.limlib.api.util.function.TriFunction;
+import org.dimdev.limlib.impl.LimlibClient;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -72,7 +73,16 @@ public class FabricClientSided<V extends FabricClientSided<V, T>, T extends ModC
 		client.initModelLayers((id, layerDefinitionSupplier) -> EntityModelLayerRegistry.registerModelLayer(id, layerDefinitionSupplier::get));
 		client.initModels((replacementModel, registration) -> modelLoadingOverrides.add(ModelLoadingOverride.create(replacementModel, registration)));
 		client.initDimensionEffects(DimensionRenderingRegistry::registerDimensionEffects);
-		client.initShaders((id, vertexFormat, loadCallback) -> CoreShaderRegistrationCallback.EVENT.register(context -> context.register(id, vertexFormat, loadCallback)));
+		if (!(client instanceof LimlibClient)) {
+			CoreShaderRegistrationCallback.EVENT.register(context ->
+				client.initShaders((id, vertexFormat, loadCallback) -> {
+					try {
+						context.register(id, vertexFormat, loadCallback);
+					} catch (IOException exception) {
+						throw new RuntimeException(exception);
+					}
+				}));
+		}
 		client.delayedInit();
 		ModelLoadingPlugin.register(new DimensionalDoorsModelLoadingPlugin(modelLoadingOverrides));
 	}

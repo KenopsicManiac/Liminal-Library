@@ -41,16 +41,21 @@ public abstract class LevelRendererMixin {
         }
 
         if (SodiumCompat.isLoaded()) {
-            SodiumCompat.renderSpecialModelMeshes(x, y, z, modelViewMatrix, projectionMatrix);
+            if (!IrisCompat.isShaderPackInUse()) {
+                SodiumCompat.renderSpecialModelMeshes(x, y, z, modelViewMatrix, projectionMatrix);
+            }
+
             return;
         }
 
 		renderingSpecialModels = true;
 
-        for (RenderType specialModelLayer : SpecialModelRenderTypes.chunkBufferLayers()) {
-            this.renderSectionLayer(specialModelLayer, x, y, z, modelViewMatrix, projectionMatrix);
+        try {
+            for (RenderType specialModelLayer : SpecialModelRenderTypes.chunkBufferLayers()) {
+                this.renderSectionLayer(specialModelLayer, x, y, z, modelViewMatrix, projectionMatrix);
+            }
+        } finally {
+            renderingSpecialModels = false;
         }
-
-		renderingSpecialModels = false;
     }
 }

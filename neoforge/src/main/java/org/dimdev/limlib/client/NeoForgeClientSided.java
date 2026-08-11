@@ -32,6 +32,8 @@ import org.dimdev.limlib.api.client.ModClient;
 import org.dimdev.limlib.api.client.ModelLoadingRegistry;
 import org.dimdev.limlib.api.fluid.FluidDetails;
 import org.dimdev.limlib.api.util.function.TriFunction;
+import org.dimdev.limlib.client.specialmodels.SpecialModelShaderRegistry;
+import org.dimdev.limlib.client.specialmodels.compat.iris.IrisCompat;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +107,18 @@ public class NeoForgeClientSided<V extends NeoForgeClientSided<V, T>, T extends 
                     event.registerShader(new ShaderInstance(provider, id, vertexFormat), consumer);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
+                }
+
+                var shaderpackProvider = IrisCompat.prepareSpecialModelShaderpackProvider(provider, id);
+
+                if (shaderpackProvider.isPresent()) {
+                    try {
+                        event.registerShader(
+                            new ShaderInstance(shaderpackProvider.get().provider(), id, vertexFormat),
+                            shader -> SpecialModelShaderRegistry.registerShaderpackShader(id, shaderpackProvider.get().packName(), shader));
+                    } catch (IOException e) {
+                        IrisCompat.logSpecialModelShaderpackFallback(id, e);
+                    }
                 }
 
             });

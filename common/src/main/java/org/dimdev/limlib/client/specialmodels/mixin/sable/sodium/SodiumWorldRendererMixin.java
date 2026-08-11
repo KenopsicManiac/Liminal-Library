@@ -11,6 +11,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.dimdev.limlib.client.specialmodels.SpecialModelRenderTypes;
+import org.dimdev.limlib.client.specialmodels.compat.iris.IrisCompat;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,16 +42,20 @@ public abstract class SodiumWorldRendererMixin {
         Matrix4f projection = new Matrix4f(matrices.projection());
         float partialTicks = minecraft.getTimer().getGameTimeDeltaPartialTick(false);
 
-        for (RenderType specialModelLayer : SpecialModelRenderTypes.chunkBufferLayers()) {
-            specialModelLayer.setupRenderState();
-            ShaderInstance shader = Objects.requireNonNull(RenderSystem.getShader(), "shader");
-            shader.setDefaultUniforms(specialModelLayer.mode(), modelView, projection, minecraft.getWindow());
-            shader.apply();
+        IrisCompat.withTerrainTranslucentPhase(() -> {
+            for (RenderType specialModelLayer : SpecialModelRenderTypes.chunkBufferLayers()) {
+                specialModelLayer.setupRenderState();
+                IrisCompat.bindSpecialModelTerrainFramebuffer();
 
-            renderDispatcher.renderSectionLayer(sublevels, specialModelLayer, shader, cameraX, cameraY, cameraZ, modelView, projection, partialTicks);
+                ShaderInstance shader = Objects.requireNonNull(RenderSystem.getShader(), "shader");
+                shader.setDefaultUniforms(specialModelLayer.mode(), modelView, projection, minecraft.getWindow());
+                shader.apply();
 
-            shader.clear();
-            specialModelLayer.clearRenderState();
-        }
+                renderDispatcher.renderSectionLayer(sublevels, specialModelLayer, shader, cameraX, cameraY, cameraZ, modelView, projection, partialTicks);
+
+                shader.clear();
+                specialModelLayer.clearRenderState();
+            }
+        });
     }
 }
