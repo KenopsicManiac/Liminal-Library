@@ -9,10 +9,16 @@ import net.ludocrypt.limlib.impl.Limlib;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.ChunkPos;
 
 import java.util.function.Function;
 
 public class Utils {
+	public static Codec<ChunkPos> pos = RecordCodecBuilder.create(instance -> instance.group(
+		Codec.INT.fieldOf("x").forGetter(pos -> pos.x),
+		Codec.INT.fieldOf("z").forGetter(pos -> pos.z)
+	).apply(instance, ChunkPos::new));
+
 	public static <T> MappedRegistry<T> createRegistry(ResourceKey<Registry<T>> key) {
 		return FabricRegistryBuilder.createSimple(key).attribute(RegistryAttribute.MODDED).buildAndRegister();
 	}

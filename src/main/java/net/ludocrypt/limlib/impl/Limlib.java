@@ -11,6 +11,7 @@ import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
 import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
 import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
 import net.ludocrypt.limlib.api.skybox.Skybox;
+import net.ludocrypt.limlib.api.world.chunk.ExactCaseChunkGenerator;
 import net.ludocrypt.limlib.api.world.pool.LimlibPoolApi;
 import net.ludocrypt.limlib.impl.debug.DebugDynamicChunkGenerator;
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
@@ -38,6 +39,7 @@ public class Limlib implements ModInitializer {
 		DynamicRegistries.registerSynced(SoundEffects.SOUND_EFFECTS_KEY, SoundEffects.CODEC);
 		LimlibPoolApi.initialize();
 
+		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "exact_case_chunk_generator", ExactCaseChunkGenerator.CODEC);
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "debug_nbt_chunk_generator", DebugNbtChunkGenerator.CODEC);
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "debug_dynamic_chunk_generator", DebugDynamicChunkGenerator.CODEC);
 	}

@@ -32,8 +32,7 @@ public abstract class ServerPlayerEntityMixin extends Player {
 	public void limlib$moveToWorld(DimensionTransition dimensionTransition, CallbackInfoReturnable<Entity> cir) {
 
 		if (LimlibTravelling.travelingSound != null) {
-			this
-				.playNotifySound(LimlibTravelling.travelingSound, SoundSource.AMBIENT, LimlibTravelling.travelingVolume,
+			this.playNotifySound(LimlibTravelling.travelingSound, SoundSource.AMBIENT, LimlibTravelling.travelingVolume,
 					LimlibTravelling.travelingPitch);
 		}
 
