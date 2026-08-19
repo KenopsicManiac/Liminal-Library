@@ -4,8 +4,10 @@ import net.ludocrypt.limlib.api.world.NbtGroup;
 import net.minecraft.resources.ResourceLocation;
 
 public class LimlibPoolApi {
+	protected static final PoolStorage POOL_STORAGE = new PoolStorage();
+
 	public static PiecePool getPool(ResourceLocation id) {
-		return PoolStorage.getPool(id);
+		return POOL_STORAGE.getEntry(id);
 	}
 
 	public static NbtGroup getPoolAsGroup(ResourceLocation id) {
@@ -13,6 +15,6 @@ public class LimlibPoolApi {
 	}
 
 	public static void initialize() {
-		PoolStorage.initializePoolStorage();
+		POOL_STORAGE.initialize();
 	}
 }

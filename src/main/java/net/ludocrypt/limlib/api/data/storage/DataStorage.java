@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.ludocrypt.limlib.api.data.listener.SimplerResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -15,6 +16,7 @@ import java.util.Map.Entry;
  * You are recommended to make a static instance of your {@code DataStorage} object for easy-access.
  * {@code DataStorage} makes use of the {@code Iterable} interface, allowing for usage in for-loops
  */
+@Experimental
 public abstract class DataStorage<T> implements Iterable<Entry<ResourceLocation, T>> {
 	private final HashMap<ResourceLocation, T> dataMap = new HashMap<>();
 	private final Codec<T> dataCodec;
