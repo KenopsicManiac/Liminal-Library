@@ -38,10 +38,12 @@ public abstract class SimplerResourceReloadListener<T> implements SimpleResource
 			for (var resource : manager.listResources(dataFolder, id
 				-> id.getPath().endsWith(".json")).entrySet()) {
 				try (var inputStream = resource.getValue().open()) {
+					String namespace = resource.getKey().getNamespace();
+					ResourceLocation fileId = ResourceLocation.fromNamespaceAndPath(namespace, resource.getKey().getPath().replace(".json", ""));
 					var json = Limlib.GSON.fromJson(new InputStreamReader(inputStream), JsonObject.class);
 
 					T data = provideCodec().parse(JsonOps.INSTANCE, json).getOrThrow();
-					insertDataToMap(data, map);
+					insertDataToMap(data, fileId, map);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -56,7 +58,7 @@ public abstract class SimplerResourceReloadListener<T> implements SimpleResource
 		return CompletableFuture.runAsync(() -> loadData(data));
 	}
 
-	protected abstract void insertDataToMap(T data, Map<ResourceLocation, T> incompleteMap);
+	protected abstract void insertDataToMap(T data, ResourceLocation fileId, Map<ResourceLocation, T> incompleteMap);
 
 	public abstract void loadData(Map<ResourceLocation, T> map);
 

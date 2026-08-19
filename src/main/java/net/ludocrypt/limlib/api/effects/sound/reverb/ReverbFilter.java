@@ -2,6 +2,7 @@ package net.ludocrypt.limlib.api.effects.sound.reverb;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.ludocrypt.limlib.api.effects.LimlibEffectsApi;
 import net.ludocrypt.limlib.api.effects.LookupGrabber;
 import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
 import net.minecraft.client.Minecraft;
@@ -117,9 +118,7 @@ public class ReverbFilter {
 		Minecraft client = Minecraft.getInstance();
 
 		if (!(client == null || client.level == null)) {
-			Optional<SoundEffects> soundEffects = LookupGrabber
-				.snatch(client.level.registryAccess().lookup(SoundEffects.SOUND_EFFECTS_KEY).get(),
-					ResourceKey.create(SoundEffects.SOUND_EFFECTS_KEY, client.level.dimension().location()));
+			Optional<SoundEffects> soundEffects = LimlibEffectsApi.getEffects(client.level.dimension().location());
 
 			if (soundEffects.isPresent()) {
 				Optional<ReverbEffect> reverb = soundEffects.get().reverb();

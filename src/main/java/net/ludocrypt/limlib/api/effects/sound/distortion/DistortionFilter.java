@@ -2,19 +2,14 @@ package net.ludocrypt.limlib.api.effects.sound.distortion;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.ludocrypt.limlib.api.effects.LookupGrabber;
-import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
+import net.ludocrypt.limlib.api.effects.LimlibEffectsApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SoundInstance;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Mth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.openal.AL11;
 import org.lwjgl.openal.EXTEfx;
-
-import java.util.Optional;
-import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class DistortionFilter {
@@ -78,7 +73,7 @@ public class DistortionFilter {
 		Minecraft client = Minecraft.getInstance();
 
 		if (!(client.level == null)) {
-			LookupGrabber.snatchFromLevel(client.level, SoundEffects.SOUND_EFFECTS_KEY).flatMap(SoundEffects::distortion).ifPresent(distortion -> {
+			LimlibEffectsApi.getDistortion(client.level.dimension().location()).ifPresent(distortion -> {
 				if (!distortion.shouldIgnore(soundInstance.getLocation())) {
 
 					for (int i = 0; i < 2; i++) {

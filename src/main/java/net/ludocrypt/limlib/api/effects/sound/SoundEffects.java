@@ -1,5 +1,6 @@
 package net.ludocrypt.limlib.api.effects.sound;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.mojang.serialization.Codec;
@@ -10,6 +11,7 @@ import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
 import net.ludocrypt.limlib.impl.Limlib;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.Music;
 
 /**
@@ -18,14 +20,15 @@ import net.minecraft.sounds.Music;
  * @param reverb applies a reverb effect to sounds in the dimension
  * @param distortion applies a distortion effect to sounds in the dimension
  * @param music changes the music in the dimension
+ * @param dimensionIds the dimensions that the sound effects should apply to
  */
-public record SoundEffects(Optional<ReverbEffect> reverb, Optional<DistortionEffect> distortion, Optional<Music> music) {
-
+public record SoundEffects(Optional<ReverbEffect> reverb, Optional<DistortionEffect> distortion, Optional<Music> music, List<ResourceLocation> dimensionIds) {
 	public static final ResourceKey<Registry<SoundEffects>> SOUND_EFFECTS_KEY = ResourceKey.createRegistryKey(Limlib.id("sound_effects"));
 
 	public static final Codec<SoundEffects> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		ReverbEffect.CODEC.optionalFieldOf("reverb").stable().forGetter(SoundEffects::reverb),
 		DistortionEffect.CODEC.optionalFieldOf("distortion").stable().forGetter(SoundEffects::distortion),
-		Music.CODEC.optionalFieldOf("music").stable().forGetter(SoundEffects::music)
+		Music.CODEC.optionalFieldOf("music").stable().forGetter(SoundEffects::music),
+		ResourceLocation.CODEC.listOf().fieldOf("dimensions").forGetter(SoundEffects::dimensionIds)
 	).apply(instance, instance.stable(SoundEffects::new)));
 }

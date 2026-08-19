@@ -13,7 +13,7 @@ public class PoolStorage extends DataStorage<PiecePool> {
 	}
 
 	@Override
-	protected void insertData(PiecePool pool, Map<ResourceLocation, PiecePool> map) {
+	protected void insertData(PiecePool pool, ResourceLocation fileId, Map<ResourceLocation, PiecePool> map) {
 		if (map.containsKey(pool.getPool()) && !pool.shouldOverride) {
 			ResourceLocation id = pool.getPool();
 			for (String subPool : pool.getSubPools().keySet()) {

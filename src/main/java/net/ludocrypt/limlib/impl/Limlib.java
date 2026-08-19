@@ -36,7 +36,7 @@ public class Limlib implements ModInitializer {
 		DimensionEffects.init();
 		PostEffect.init();
 		Skybox.init();
-		DynamicRegistries.registerSynced(SoundEffects.SOUND_EFFECTS_KEY, SoundEffects.CODEC);
+		// DynamicRegistries.registerSynced(SoundEffects.SOUND_EFFECTS_KEY, SoundEffects.CODEC);
 		LimlibPoolApi.initialize();
 
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "exact_case_chunk_generator", ExactCaseChunkGenerator.CODEC);
