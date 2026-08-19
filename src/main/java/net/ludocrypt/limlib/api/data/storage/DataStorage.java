@@ -13,8 +13,7 @@ import java.util.Map.Entry;
 
 /**
  * A superclass to help with simplifying data-storage, intended to replace dynamic registries.
- * You are recommended to make a static instance of your {@code DataStorage} object for easy-access.
- * {@code DataStorage} makes use of the {@code Iterable} interface, allowing for usage in for-loops
+ * You are recommended to make a static instance of your {@code DataStorage} object for easy-access
  */
 @Experimental
 public abstract class DataStorage<T> implements Iterable<Entry<ResourceLocation, T>> {
