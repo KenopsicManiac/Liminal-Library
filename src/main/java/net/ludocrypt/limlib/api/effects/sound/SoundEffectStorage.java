@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class SoundEffectStorage extends ResourceStorage<SoundEffects> {
 	public SoundEffectStorage() {
-		super(SoundEffects.CODEC, Limlib.id("limlib_sound_effect_listener"), "dim_sound_effects");
+		super(SoundEffects.CODEC, Limlib.id("sound_effect_listener"), "dim_sound_effects");
 	}
 
 	@Override

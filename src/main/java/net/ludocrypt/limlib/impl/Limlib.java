@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ModInitializer;
 import net.ludocrypt.limlib.api.Utils;
-import net.ludocrypt.limlib.api.effects.LimlibEffectsApi;
 import net.ludocrypt.limlib.api.effects.post.PostEffect;
 import net.ludocrypt.limlib.api.effects.sky.DimensionEffects;
 import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
@@ -49,6 +48,5 @@ public class Limlib implements ModInitializer {
 	 */
 	public static void initializeApis() {
 		LimlibPoolApi.initializeApi();
-		LimlibEffectsApi.initializeApi();
 	}
 }
