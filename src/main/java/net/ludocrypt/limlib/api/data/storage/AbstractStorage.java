@@ -15,17 +15,17 @@ public abstract class AbstractStorage<T> implements Iterable<Entry<ResourceLocat
 	private final Codec<T> dataCodec;
 	private final ResourceLocation listenerId;
 	private final String dataFolder;
-	private final PackType type;
+	private final PackType packType;
 
-	public AbstractStorage(Codec<T> dataCodec, ResourceLocation listenerId, String dataFolder, PackType type) {
+	public AbstractStorage(Codec<T> dataCodec, ResourceLocation listenerId, String dataFolder, PackType packType) {
 		this.dataCodec = dataCodec;
 		this.listenerId = listenerId;
 		this.dataFolder = dataFolder;
-		this.type = type;
+		this.packType = packType;
 	}
 
-	public AbstractStorage(Codec<T> dataCodec, ResourceLocation listenerId, String dataFolder, PackType type, Map<ResourceLocation, T> baseMap) {
-		this(dataCodec, listenerId, dataFolder, type);
+	public AbstractStorage(Codec<T> dataCodec, ResourceLocation listenerId, String dataFolder, PackType packType, Map<ResourceLocation, T> baseMap) {
+		this(dataCodec, listenerId, dataFolder, packType);
 		this.dataMap.putAll(baseMap);
 	}
 
@@ -68,7 +68,7 @@ public abstract class AbstractStorage<T> implements Iterable<Entry<ResourceLocat
 	protected abstract void insertData(T data, ResourceLocation fileId, Map<ResourceLocation, T> incompleteMap);
 
 	public void initialize() {
-		ResourceManagerHelper.get(type)
+		ResourceManagerHelper.get(packType)
 			.registerReloadListener(
 				new SimplerResourceReloadListener<T>(listenerId, dataFolder) {
 					@Override

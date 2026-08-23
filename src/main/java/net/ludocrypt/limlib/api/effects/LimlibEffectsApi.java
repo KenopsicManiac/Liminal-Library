@@ -30,4 +30,11 @@ public class LimlibEffectsApi {
 	public static Optional<Music> getMusic(ResourceLocation dimensionId) {
 		return getEffects(dimensionId).flatMap(SoundEffects::music);
 	}
+
+	/**
+	 * Only call this method if you are shadowing Liminal Library
+	 */
+	public static void initializeApi() {
+		SOUND_STORAGE.initialize();
+	}
 }

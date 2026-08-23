@@ -14,7 +14,10 @@ public class LimlibPoolApi {
 		return getPool(id).convertToGroup();
 	}
 
-	public static void initialize() {
+	/**
+	 * Only call this method if you are shadowing Liminal Library
+	 */
+	public static void initializeApi() {
 		POOL_STORAGE.initialize();
 	}
 }

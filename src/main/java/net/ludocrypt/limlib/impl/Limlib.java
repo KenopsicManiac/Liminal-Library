@@ -3,11 +3,10 @@ package net.ludocrypt.limlib.impl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.ludocrypt.limlib.api.Utils;
+import net.ludocrypt.limlib.api.effects.LimlibEffectsApi;
 import net.ludocrypt.limlib.api.effects.post.PostEffect;
 import net.ludocrypt.limlib.api.effects.sky.DimensionEffects;
-import net.ludocrypt.limlib.api.effects.sound.SoundEffects;
 import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
 import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
 import net.ludocrypt.limlib.api.skybox.Skybox;
@@ -24,9 +23,10 @@ public class Limlib implements ModInitializer {
 
 	public static final Logger LOGGER = LoggerFactory.getLogger("Limlib");
 	public static final Gson GSON = new GsonBuilder().create();
+	public static final String MODID = "limlib";
 
 	public static ResourceLocation id(String id) {
-		return ResourceLocation.fromNamespaceAndPath("limlib", id);
+		return ResourceLocation.fromNamespaceAndPath(MODID, id);
 	}
 
 	@Override
@@ -37,11 +37,18 @@ public class Limlib implements ModInitializer {
 		PostEffect.init();
 		Skybox.init();
 		// DynamicRegistries.registerSynced(SoundEffects.SOUND_EFFECTS_KEY, SoundEffects.CODEC);
-		LimlibPoolApi.initialize();
+		initializeApis();
 
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "exact_case_chunk_generator", ExactCaseChunkGenerator.CODEC);
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "debug_nbt_chunk_generator", DebugNbtChunkGenerator.CODEC);
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "debug_dynamic_chunk_generator", DebugDynamicChunkGenerator.CODEC);
 	}
 
+	/**
+	 * Only call this method if you are shadowing Liminal Library
+	 */
+	public static void initializeApis() {
+		LimlibPoolApi.initializeApi();
+		LimlibEffectsApi.initializeApi();
+	}
 }
