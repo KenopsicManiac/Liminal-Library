@@ -42,32 +42,36 @@ public class PiecePool {
 		return subPools.containsKey(subPool);
 	}
 
-	public void addSubPool(String subPool, String... pieces) {
+	public PiecePool addSubPool(String subPool, String... pieces) {
 		if (!hasSubPool(subPool)) {
 			subPools.put(subPool, List.of(pieces));
 		}
+		return this;
 	}
 
-	public void addPiecesToSubPool(String subPool, String... pieces) {
+	public PiecePool addPiecesToSubPool(String subPool, String... pieces) {
 		if (hasSubPool(subPool)) {
 			List<String> filteredList = Arrays.stream(pieces)
 				.filter(piece -> !subPools.get(subPool).contains(piece))
 				.toList();
 			subPools.get(subPool).addAll(filteredList);
 		}
+		return this;
 	}
 
-	public void removeSubPool(String subPool) {
+	public PiecePool removeSubPool(String subPool) {
 		subPools.remove(subPool);
+		return this;
 	}
 
-	public void removePiecesFromSubPool(String subPool, String... pieces) {
+	public PiecePool removePiecesFromSubPool(String subPool, String... pieces) {
 		if (hasSubPool(subPool)) {
 			List<String> filteredList = Arrays.stream(pieces)
 				.filter(piece -> subPools.get(subPool).contains(piece))
 				.toList();
 			subPools.get(subPool).removeAll(filteredList);
 		}
+		return this;
 	}
 
 	public NbtGroup convertToGroup() {

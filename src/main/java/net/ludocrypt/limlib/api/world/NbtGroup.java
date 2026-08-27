@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+
+import net.ludocrypt.limlib.api.world.pool.PiecePool;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import com.google.common.collect.Lists;
@@ -148,4 +150,8 @@ public class NbtGroup {
 
 	}
 
+	public PiecePool convertToPool(ResourceLocation poolId) {
+		Map<String, List<String>> subPools = getGroups();
+		return new PiecePool(poolId, subPools);
+	}
 }

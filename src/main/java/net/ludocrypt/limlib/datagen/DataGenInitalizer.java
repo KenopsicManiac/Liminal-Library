@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
+import net.ludocrypt.limlib.datagen.providers.debug.DebugPiecePoolDataProvider;
 import net.ludocrypt.limlib.impl.debug.DebugDynamicChunkGenerator;
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
 import net.minecraft.core.HolderLookup;
@@ -28,7 +29,6 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
-
 		var pack = fabricDataGenerator.createPack();
 		pack.addProvider((FabricDataGenerator.Pack.RegistryDependentFactory<DataProvider>) (output, registriesFuture) -> new FabricDynamicRegistryProvider(output, registriesFuture) {
 			@Override
@@ -54,7 +54,6 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 				return "Liminal Test";
 			}
 		});
-
 		pack.addProvider(new FabricDataGenerator.Pack.RegistryDependentFactory<>() {
 			@Override
 			public DataProvider create(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
@@ -66,6 +65,7 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 				};
 			}
 		});
+		pack.addProvider(DebugPiecePoolDataProvider::new);
 	}
 
 	@Override
