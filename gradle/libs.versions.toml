@@ -5,6 +5,9 @@ fabric_loader = "0.16.14"
 
 fabric_api = "0.116.4+1.21.1"
 
+sodium = "mc1.21.1-0.8.12-beta.1-fabric"
+iris = "1.8.14-beta.1+1.21.1-fabric"
+
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 fabric_mappings = { module = "net.fabricmc:yarn", version.ref = "fabric_mappings" }
@@ -12,8 +15,11 @@ fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_l
 
 fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_api" }
 
+sodium = { module = "maven.modrinth:sodium", version.ref = "sodium"}
+iris = { module = "maven.modrinth:iris", version.ref = "iris"}
+
 #[bundles]
 #quilted_fabric_api = ["quilted_fabric_api", "quilted_fabric_api_deprecated"]
 
 [plugins]
-fabric_loom = { id = "fabric-loom", version = "1.11-SNAPSHOT" }
+fabric_loom = { id = "fabric-loom", version = "1.17-SNAPSHOT" }

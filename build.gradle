@@ -22,6 +22,17 @@ fabricApi {
 repositories {
 	maven { url = 'https://maven.fabricmc.net/' }
 	maven { url = 'https://ladysnake.jfrog.io/artifactory/mods' }
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = "https://api.modrinth.com/maven"
+			}
+		}
+		filter {
+			includeGroup "maven.modrinth"
+		}
+	}
 }
 
 dependencies {
@@ -29,6 +40,13 @@ dependencies {
 	mappings loom.officialMojangMappings()
 	modImplementation libs.fabric.loader
 	modImplementation libs.fabric.api
+
+	// soft dependencies
+	modCompileOnly libs.sodium
+	modLocalRuntime libs.sodium
+
+	modCompileOnly libs.iris
+	modLocalRuntime libs.iris
 }
 
 processResources {
