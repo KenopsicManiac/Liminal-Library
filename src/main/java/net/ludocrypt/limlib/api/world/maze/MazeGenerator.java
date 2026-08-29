@@ -10,7 +10,7 @@ import net.minecraft.util.RandomSource;
 
 public class MazeGenerator<M extends MazeComponent> {
 
-	private final HashMap<Vec2i, M> mazes = new HashMap<Vec2i, M>(30);
+	private final HashMap<Vec2i, M> mazes = new HashMap<>(30);
 	public final int width;
 	public final int height;
 	public final int thicknessX;
@@ -89,7 +89,7 @@ public class MazeGenerator<M extends MazeComponent> {
 	}
 
 	@FunctionalInterface
-	public static interface CellDecorator<M extends MazeComponent> {
+	public interface CellDecorator<M extends MazeComponent> {
 
 		void generate(WorldGenRegion region, Vec2i pos, Vec2i mazePos, M maze, CellState state, Vec2i thickness,
 				RandomSource random);
@@ -97,7 +97,7 @@ public class MazeGenerator<M extends MazeComponent> {
 	}
 
 	@FunctionalInterface
-	public static interface MazeCreator<M extends MazeComponent> {
+	public interface MazeCreator<M extends MazeComponent> {
 
 		M newMaze(WorldGenRegion region, Vec2i mazePos, int width, int height, RandomSource random);
 

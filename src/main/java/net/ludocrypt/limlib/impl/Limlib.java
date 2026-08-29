@@ -8,7 +8,6 @@ import net.ludocrypt.limlib.api.effects.post.PostEffect;
 import net.ludocrypt.limlib.api.effects.sky.DimensionEffects;
 import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
 import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
-import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.ludocrypt.limlib.api.world.chunk.ExactCaseChunkGenerator;
 import net.ludocrypt.limlib.api.world.pool.LimlibPoolApi;
 import net.ludocrypt.limlib.impl.debug.DebugDynamicChunkGenerator;
@@ -34,7 +33,6 @@ public class Limlib implements ModInitializer {
 		DistortionEffect.init();
 		DimensionEffects.init();
 		PostEffect.init();
-		Skybox.init();
 		// DynamicRegistries.registerSynced(SoundEffects.SOUND_EFFECTS_KEY, SoundEffects.CODEC);
 		initializeApis();
 

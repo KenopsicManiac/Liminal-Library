@@ -3,6 +3,7 @@
   "minVersion": "0.8",
   "package": "net.ludocrypt.limlib.impl.mixin",
   "compatibilityLevel": "JAVA_21",
+  "plugin": "net.ludocrypt.limlib.impl.mixin.LimlibMixinPlugin",
   "mixins": [
     "ChunkStatusMixin",
     "ServerPlayerEntityMixin"
@@ -15,9 +16,7 @@
     "client.GameRendererMixin",
     "client.MinecraftClientMixin",
     "client.SoundSystemMixin",
-    "client.SourceAccessor",
-    "client.WorldRendererAfterMixin",
-    "client.WorldRendererBeforeMixin"
+    "client.SourceAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

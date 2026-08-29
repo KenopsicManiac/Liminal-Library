@@ -5,7 +5,6 @@ import net.ludocrypt.limlib.api.effects.post.PostEffect;
 import net.ludocrypt.limlib.api.effects.sky.DimensionEffects;
 import net.ludocrypt.limlib.api.effects.sound.distortion.DistortionEffect;
 import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
-import net.ludocrypt.limlib.api.skybox.Skybox;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -17,8 +16,6 @@ public class LimLibRegistries {
 	public static final ResourceKey<Registry<DistortionEffect>> DISTORTION_EFFECT = key("distortion_effect");
 	public static final ResourceKey<Registry<MapCodec<? extends DimensionEffects>>> DIMENSION_EFFECTS_CODEC = key("codec/dimension_effects");
 	public static final ResourceKey<Registry<DimensionEffects>> DIMENSION_EFFECTS = key("dimension_effects");
-	public static final ResourceKey<Registry<MapCodec<? extends Skybox>>> SKYBOX_CODEC = key("codec/skybox");
-	public static final ResourceKey<Registry<Skybox>> SKYBOX = key("skybox");
 	public static final ResourceKey<Registry<MapCodec<? extends ReverbEffect>>> REVERB_EFFECT_CODEC = key("codec/reverb_effect");
 	public static final ResourceKey<Registry<ReverbEffect>> REVERB_EFFECT = key("reverb_effect");
 
