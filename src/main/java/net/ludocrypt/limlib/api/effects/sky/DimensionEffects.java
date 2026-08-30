@@ -25,7 +25,7 @@ public interface DimensionEffects {
 		.dispatchStable(DimensionEffects::getCodec, Function.identity());
 	AtomicReference<HolderLookup.RegistryLookup<DimensionEffects>> MIXIN_WORLD_LOOKUP = new AtomicReference<>();
 
-	public static void init() {
+	static void init() {
 		Utils.register(REGISTRY, "static", StaticDimensionEffects.CODEC);
 		DynamicRegistries.registerSynced(LimLibRegistries.DIMENSION_EFFECTS, DimensionEffects.CODEC);
 	}
