@@ -41,12 +41,11 @@ dependencies {
 	modImplementation libs.fabric.loader
 	modImplementation libs.fabric.api
 
-	// soft dependencies
+	// Soft Dependencies
+	// Please test these by putting the jars of mods listed below into the run folder (idk how to word this better)
 	modCompileOnly libs.sodium
-	modLocalRuntime libs.sodium
 
 	modCompileOnly libs.iris
-	modLocalRuntime libs.iris
 }
 
 processResources {
