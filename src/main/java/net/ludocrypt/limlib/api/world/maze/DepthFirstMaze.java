@@ -4,6 +4,10 @@ import java.util.List;
 import net.minecraft.util.RandomSource;
 import com.google.common.collect.Lists;
 
+/**
+ * Generates a maze using Depth First Search
+ * @see net.ludocrypt.limlib.api.world.maze.DepthFirstMazeSolver
+ */
 public class DepthFirstMaze extends DepthLikeMaze {
 
 	public RandomSource random;
@@ -23,11 +27,9 @@ public class DepthFirstMaze extends DepthLikeMaze {
 			List<Face> neighbours = Lists.newArrayList();
 
 			for (Face face : Face.values()) {
-
 				if (this.hasNeighbour(this.stack.peek(), face)) {
 					neighbours.add(face);
 				}
-
 			}
 
 			if (!neighbours.isEmpty()) {
