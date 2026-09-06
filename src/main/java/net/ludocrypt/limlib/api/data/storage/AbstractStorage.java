@@ -92,4 +92,9 @@ public abstract class AbstractStorage<T> implements Iterable<Entry<ResourceLocat
 	public @NotNull Iterator<Entry<ResourceLocation, T>> iterator() {
 		return getAllEntries().iterator();
 	}
+
+	@Override
+	public Spliterator<Entry<ResourceLocation, T>> spliterator() {
+		return Spliterators.spliterator(this.iterator(), dataMap.size(), Spliterator.SIZED);
+	}
 }
