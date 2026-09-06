@@ -2,6 +2,7 @@ package net.ludocrypt.limlib.api.world;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -11,7 +12,7 @@ public class FunctionMap<K, V, A> {
 
 	private final Optional<BiFunction<K, A, V>> defaultMapper;
 	private Map<K, Function<A, V>> functionMap = Maps.newHashMap();
-	private Map<K, V> cache = Maps.newHashMap();
+	private Map<K, V> cache = new ConcurrentHashMap<>();
 
 	public FunctionMap(BiFunction<K, A, V> defaultMapper) {
 		this.defaultMapper = Optional.of(defaultMapper);
