@@ -1,7 +1,5 @@
 package net.ludocrypt.limlib.impl.services;
 
-import org.jetbrains.annotations.Contract;
-
 /**
  * Service to check if Iris is running shaders or not.
  * This was used for the now-deprecated Skybox API, please
@@ -15,12 +13,10 @@ public interface IrisCompatImpl {
 	/**
 	 * @return Whether a shader-pack is being used or not
 	 */
-	@Contract(pure = true)
 	boolean shadersInUse();
 
 	/**
 	 * @return If Iris is rendering the Shadow Pass or not
 	 */
-	@Contract(pure = true)
 	boolean isRenderingShadowPass();
 }

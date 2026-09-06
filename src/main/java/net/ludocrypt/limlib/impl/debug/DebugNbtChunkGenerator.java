@@ -40,11 +40,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 
 public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 
-	public static final MapCodec<DebugNbtChunkGenerator> CODEC = RecordCodecBuilder.mapCodec((instance) -> {
-		return instance
-			.group(RegistryOps.retrieveElement(Biomes.THE_VOID))
-			.apply(instance, instance.stable(DebugNbtChunkGenerator::new));
-	});
+	public static final MapCodec<DebugNbtChunkGenerator> CODEC = RecordCodecBuilder.mapCodec((instance) -> instance
+		.group(RegistryOps.retrieveElement(Biomes.THE_VOID))
+		.apply(instance, instance.stable(DebugNbtChunkGenerator::new)));
 	BidirectionalMap<ResourceLocation, BlockPos> positions = new BidirectionalMap<ResourceLocation, BlockPos>();
 
 	public DebugNbtChunkGenerator(Holder.Reference<Biome> reference) {
@@ -168,6 +166,7 @@ public class DebugNbtChunkGenerator extends AbstractNbtChunkGenerator {
 
 	@Override
 	public void addDebugScreenInfo(List<String> list, RandomState randomState, BlockPos pos) {
+		list.add("This is a debug world");
 	}
 
 	public static class DebugNbtGroup extends NbtGroup {

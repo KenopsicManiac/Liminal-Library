@@ -7,6 +7,7 @@ import net.ludocrypt.limlib.api.world.maze.MazeComponent.CellState;
 import net.ludocrypt.limlib.api.world.maze.MazeComponent.Vec2i;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.chunk.ChunkAccess;
 
 public class MazeGenerator<M extends MazeComponent> {
 
@@ -23,8 +24,8 @@ public class MazeGenerator<M extends MazeComponent> {
 	 *
 	 * @param width        of the maze
 	 * @param height       of the maze
-	 * @param thicknessX   of the cells in real world coordinates.
-	 * @param thicknessY   of the cells in real world coordinates.
+	 * @param thicknessX   of the cells in real world coordinates (in other words, blocks)
+	 * @param thicknessY   of the cells in real world coordinates (in other words, blocks)
 	 * @param seedModifier is the change to the seed when generating a new random
 	 *                     maze. In code, it uses the world seed + seedModifier
 	 */
@@ -42,11 +43,10 @@ public class MazeGenerator<M extends MazeComponent> {
 	 *
 	 * @param pos           the starting position for the maze logic to work.
 	 * @param mazeCreator   functional interface to create a new maze at a position
-	 * @param cellDecorator funcional interface to generate a single maze block, or
+	 * @param cellDecorator functional interface to generate a single maze block, or
 	 *                      'cell'
 	 */
 	public void generateMaze(Vec2i pos, WorldGenRegion region, MazeCreator<M> mazeCreator, CellDecorator<M> cellDecorator) {
-
 		for (int x = 0; x < 16; x++) {
 
 			for (int y = 0; y < 16; y++) {
@@ -77,11 +77,12 @@ public class MazeGenerator<M extends MazeComponent> {
 								.create(LimlibHelper
 									.blockSeed(mazePos.getX(), mazePos.getY(), region.getSeed() + seedModifier)));
 				}
-
 			}
-
 		}
+	}
 
+	public void generateMaze(ChunkAccess chunk, WorldGenRegion region, MazeCreator<M> mazeCreator, CellDecorator<M> cellDecorator) {
+		this.generateMaze(new Vec2i(chunk.getPos().getWorldPosition()), region, mazeCreator, cellDecorator);
 	}
 
 	public HashMap<Vec2i, M> getMazes() {

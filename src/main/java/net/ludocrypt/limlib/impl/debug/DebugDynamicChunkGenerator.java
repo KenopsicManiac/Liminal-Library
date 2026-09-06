@@ -96,6 +96,6 @@ public class DebugDynamicChunkGenerator extends AbstractDynamicChunkGenerator {
 
 	@Override
 	public void addDebugScreenInfo(List<String> list, RandomState randomState, BlockPos blockPos) {
-
+		list.add("This is a debug world");
 	}
 }

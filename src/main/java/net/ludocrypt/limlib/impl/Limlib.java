@@ -11,6 +11,7 @@ import net.ludocrypt.limlib.api.effects.sound.reverb.ReverbEffect;
 import net.ludocrypt.limlib.api.world.chunk.ExactCaseChunkGenerator;
 import net.ludocrypt.limlib.api.world.pool.LimlibPoolApi;
 import net.ludocrypt.limlib.impl.debug.DebugDynamicChunkGenerator;
+import net.ludocrypt.limlib.impl.debug.DebugMazeChunkGenerator;
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -39,6 +40,7 @@ public class Limlib implements ModInitializer {
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "exact_case_chunk_generator", ExactCaseChunkGenerator.CODEC);
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "debug_nbt_chunk_generator", DebugNbtChunkGenerator.CODEC);
 		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "debug_dynamic_chunk_generator", DebugDynamicChunkGenerator.CODEC);
+		Utils.register(BuiltInRegistries.CHUNK_GENERATOR, "debug_maze_chunk_generator", DebugMazeChunkGenerator.CODEC);
 	}
 
 	/**

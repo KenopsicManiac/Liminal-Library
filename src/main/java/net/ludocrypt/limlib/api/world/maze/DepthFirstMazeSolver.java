@@ -18,7 +18,7 @@ public class DepthFirstMazeSolver extends DepthLikeMaze {
 	/**
 	 * Creates a depth first maze solver.
 	 * <p>
-	 * 
+	 *
 	 * @param mazeToSolve is the maze to solve
 	 * @param random      is the random
 	 * @param end         is the position for the depth first algorithm to find
@@ -36,7 +36,7 @@ public class DepthFirstMazeSolver extends DepthLikeMaze {
 	public void create() {
 		List<Stack<Vec2i>> paths = Lists.newArrayList();
 		this.beginnings.forEach((beginning) -> {
-			Stack<Vec2i> stack = new Stack<Vec2i>();
+			Stack<Vec2i> stack = new Stack<>();
 			stack.push(new Vec2i(beginning.getX(), beginning.getY()));
 			Vec2i peek = stack.peek();
 			visit(peek);
@@ -139,5 +139,4 @@ public class DepthFirstMazeSolver extends DepthLikeMaze {
 	public boolean hasNeighbourLeft(Vec2i vec) {
 		return super.hasNeighbourLeft(vec) && this.mazeToSolve.cellState(vec).goesLeft();
 	}
-
 }

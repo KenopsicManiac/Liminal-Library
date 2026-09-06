@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.datagen.v1.provider.FabricDynamicRegistryProvider
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.ludocrypt.limlib.datagen.providers.debug.DebugPiecePoolDataProvider;
 import net.ludocrypt.limlib.impl.debug.DebugDynamicChunkGenerator;
+import net.ludocrypt.limlib.impl.debug.DebugMazeChunkGenerator;
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
@@ -26,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
 public class DataGenInitalizer implements DataGeneratorEntrypoint {
 	public static final ResourceKey<WorldPreset> DEBUG_KEY = ResourceKey.create(Registries.WORLD_PRESET, ResourceLocation.fromNamespaceAndPath("limlib", "debug_nbt"));
 	public static final ResourceKey<WorldPreset> DEBUG_DYNAMIC_KEY = ResourceKey.create(Registries.WORLD_PRESET, ResourceLocation.fromNamespaceAndPath("limlib", "debug_dynamic_nbt"));
+	public static final ResourceKey<WorldPreset> DEBUG_MAZE_KEY = ResourceKey.create(Registries.WORLD_PRESET, ResourceLocation.fromNamespaceAndPath("limlib", "debug_maze"));
 
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
@@ -45,6 +47,11 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 								dimension, new DebugDynamicChunkGenerator(biome)
 							))
 						));
+						entries.add(DEBUG_MAZE_KEY, new WorldPreset(
+							Map.of(LevelStem.OVERWORLD, new LevelStem(
+								dimension, new DebugMazeChunkGenerator(biome)
+							))
+						));
 					});
 				});
 			}
@@ -57,14 +64,18 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 		pack.addProvider(new FabricDataGenerator.Pack.RegistryDependentFactory<>() {
 			@Override
 			public DataProvider create(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
-				return new FabricTagProvider<WorldPreset>(output, Registries.WORLD_PRESET, registriesFuture) {
+				return new FabricTagProvider<>(output, Registries.WORLD_PRESET, registriesFuture) {
 					@Override
 					protected void addTags(HolderLookup.Provider wrapperLookup) {
-						this.tag(WorldPresetTags.EXTENDED).addOptional(DEBUG_KEY.location()).addOptional(DEBUG_DYNAMIC_KEY.location());
+						this.tag(WorldPresetTags.EXTENDED)
+							.addOptional(DEBUG_KEY.location())
+							.addOptional(DEBUG_DYNAMIC_KEY.location())
+							.addOptional(DEBUG_MAZE_KEY.location());
 					}
 				};
 			}
 		});
+
 		pack.addProvider(DebugPiecePoolDataProvider::new);
 	}
 

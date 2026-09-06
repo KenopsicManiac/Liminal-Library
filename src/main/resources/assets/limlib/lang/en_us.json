@@ -1,4 +1,5 @@
 {
 	"generator.limlib.debug_nbt": "Nbt Debug",
-  "generator.limlib.debug_dynamic_nbt": "Nbt Dynamic Data"
+  "generator.limlib.debug_dynamic_nbt": "Nbt Dynamic Data Debug",
+  "generator.limlib.debug_maze": "Maze Debug"
 }
