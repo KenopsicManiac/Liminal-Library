@@ -91,17 +91,13 @@ public class MazeGenerator<M extends MazeComponent> {
 
 	@FunctionalInterface
 	public interface CellDecorator<M extends MazeComponent> {
-
 		void generate(WorldGenRegion region, Vec2i pos, Vec2i mazePos, M maze, CellState state, Vec2i thickness,
 				RandomSource random);
-
 	}
 
 	@FunctionalInterface
 	public interface MazeCreator<M extends MazeComponent> {
-
 		M newMaze(WorldGenRegion region, Vec2i mazePos, int width, int height, RandomSource random);
-
 	}
 
 }

@@ -92,7 +92,7 @@ public abstract class MazeComponent {
 	/**
 	 * Describes the state of a particular room or 'cell' in a maze
 	 * <p>
-	 * 
+	 *
 	 * @param up       has wall up open
 	 * @param right    has right wall open
 	 * @param down     has wall down open
@@ -404,5 +404,4 @@ public abstract class MazeComponent {
 		}
 
 	}
-
 }
