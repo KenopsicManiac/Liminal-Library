@@ -1,29 +1,42 @@
-# Quilt Template Mod
+> Liminal Library is licensed under the GNU Lesser General Public License; please respect licensing appropriately
+# Liminal Library
+A library originally designed by LudoCrypt for liminal dimensions. 
 
-The official Quilt template mod. You can use it as a template for your own mods!
+This fork aims to revamp and expand it for the
+Fabric platform, with friendlier, datapack-oriented features.
 
-## Usage
+Early upgrades were originally handled by DimensionalDevelopments, including the move from Quilt API to Fabric API.
 
-In order to use this mod as a template:
+Upgrades and expansions from the early PiecePool API onwards are handled by KenopsicManiac
 
-1. Create a new repository from this template with `Use this template`
-2. Clone the recently-created repo on your PC
-3. Make the necessary changes in order to make it yours:
-    - Update `gradle.properties` in order to use your Maven group and mod ID
-        - If you don't know which Maven group to use, and you are planning to host the mod's source code on GitHub, use `io.github.<Your_Username_Here>`
-    - Update `quilt.mod.json` in order to reflect your mod's metadata
-        - If you are planning to include (jar-in-jar) a mod, don't forget to declare its dependency on it!
-        - The icon provided here is a placeholder one. If you aren't able to replace it yet, you can delete it and remove the "icon" property
-    - Create a LICENSE file for this mod! If you don't know which license to use, check out [here](https://choosealicense.com/).
-        - If you use `LICENSE.md`, don't forget to update the buildscript in order to use that file name!
-        - In `quilt.mod.json`, don't forget to put the license's [SPDX identifier](https://spdx.org/licenses/) under the `"license"` property in `"metadata"`.
-        - The GPLv3 and AGPLv3 are not valid mod licenses, so you can use almost any license except for those.
-    - Update the Java sub-directory structure so it reflects your Maven group
-    - If the dependencies on `gradle/libs.versions.toml` isn't up-to-date, feel free to update them! The [linked utility](https://lambdaurora.dev/tools/import_quilt.html) should help you in this easy and quick process.
-4. The mod is now ready to be worked on!
+## Returning Features
+> The following features have been brought from the original version of the library, into this fork
+> due to meeting Fabric standards and being worth updating.
 
-## License
+- Maze Generation and NbtChunkGenerators, the centerpieces of the library
+- Dimensional Sound System; now data-driven
+- Post Shader Effects
 
-This template on the QuiltMC GitHub is licensed under the [Creative Common Zero v1.0 license](./LICENSE-TEMPLATE.md).
+## Added Features
+> These features have been added to expand on the library's capabilities.
+> 
+> Anything else added, but not listed here, should be considered experimental.
 
-Mods created with this template are not automatically licensed under the CC0, and are not required to give any kind of credit back to QuiltMC for this template.
+- PiecePool API; a system allowing for more datapack-friendly liminal dimensions
+- MazeFloorPipelines; a way to handle multiple maze generators at once, in a more sleek structure
+- ExactCaseChunkGenerator; make small-scale liminal dimensions, simply through datapacks.
+
+## Deprecated Features
+> Due to Fabric standards, these were cut from the library due to instability,
+> heavy maintenance costs, or being made obsolete
+
+- Data-hooks and Registrar; deprecated early on, due to being unnecessary and over-complicated compared to
+standard data-pack handling.
+- Skybox System; removed due to mods like Nuit being standardized for Fabric mods.
+
+## Planned Features
+- [ ] More Data-driven Chunk Generators
+- [ ] More Maze Generator Types
+- [ ] Resource-driven Post Shader Effects
+- [ ] Resource-driven Dimension Effects
+- [ ] Data-generation Handling
