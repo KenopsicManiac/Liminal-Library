@@ -8,7 +8,6 @@ import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.event.registry.DynamicRegistries;
 import net.ludocrypt.limlib.api.LimLibRegistries;
 import net.ludocrypt.limlib.api.Utils;
-import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
