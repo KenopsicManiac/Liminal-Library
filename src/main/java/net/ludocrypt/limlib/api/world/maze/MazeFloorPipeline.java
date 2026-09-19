@@ -12,13 +12,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A pipeline, where each step is another floor
+ * A pipeline, where each step is another floor.
+ * You are expected to
  */
 public class MazeFloorPipeline<M extends MazeGenerator<MazeComponent>> implements Iterable<M> {
 	/**
 	 * A list containing each floor's {@link MazeGenerator Maze Generator}
 	 */
-	protected final List<M> floors;
+	protected final List<M> floors = Collections.synchronizedList(new ArrayList<>());
+
 	/**
 	 * A concurrent map containing each floor's processes
 	 */
@@ -33,11 +35,9 @@ public class MazeFloorPipeline<M extends MazeGenerator<MazeComponent>> implement
 
 	/**
 	 * A special container of maze generators, intended for handling multiple floors
-	 * @param floors a list of {@link MazeGenerator Maze Generators} corresponding to each floor
 	 * @param mazeName the name of the maze, for debug purposes
 	 */
-	public MazeFloorPipeline(List<M> floors, String mazeName) {
-		this.floors = floors;
+	public MazeFloorPipeline(String mazeName) {
 		this.mazeName = mazeName;
 	}
 
@@ -51,22 +51,26 @@ public class MazeFloorPipeline<M extends MazeGenerator<MazeComponent>> implement
 		return floors.size();
 	}
 
-	public MazeFloorPipeline<M> addFloor(MazeCreator<MazeComponent> creator, CellDecorator<MazeComponent> decorator) {
-		this.cache.put(floors.size(), new Pair<>(creator, decorator));
+	public MazeFloorPipeline<M> addFloor(M mazeGenerator, MazeCreator<MazeComponent> creator, CellDecorator<MazeComponent> decorator) {
+		this.floors.add(mazeGenerator);
+		this.cache.put(floors.size()-1, new Pair<>(creator, decorator));
+
 		return this;
 	}
 
 
 	public void generateFloors(Vec2i worldPos, WorldGenRegion worldRegion) {
-		Pair<MazeCreator<MazeComponent>, CellDecorator<MazeComponent>> generatorFunctions;
-		int currentFloor = 1;
-		for (M floorGenerator : floors) {
-			// Cursed, but it'll do
-			generatorFunctions = cache.get(currentFloor);
+		synchronized (floors) {
+			Pair<MazeCreator<MazeComponent>, CellDecorator<MazeComponent>> generatorFunctions;
+			int currentFloor = 0;
 
-			floorGenerator.generateMaze(worldPos, worldRegion, generatorFunctions.getFirst(), generatorFunctions.getSecond());
+			Iterator<M> iterator = iterator();
 
-			currentFloor++;
+			while (iterator().hasNext()) {
+				generatorFunctions = cache.get(currentFloor++);
+				MazeGenerator<MazeComponent> generator = iterator().next();
+				generator.generateMaze(worldPos, worldRegion, generatorFunctions.getFirst(), generatorFunctions.getSecond());
+			}
 		}
 	}
 
@@ -77,7 +81,7 @@ public class MazeFloorPipeline<M extends MazeGenerator<MazeComponent>> implement
 
 	protected class MazeComponentIterator implements Iterator<M> {
 		// Our pointer for the iterator, use the post-increment operator to update it
-		private int pointer = 1;
+		private int pointer = 0;
 		MazeFloorPipeline<M> collection;
 
 		public MazeComponentIterator(MazeFloorPipeline<M> collection) {
@@ -86,7 +90,7 @@ public class MazeFloorPipeline<M extends MazeGenerator<MazeComponent>> implement
 
 		@Override
 		public boolean hasNext() {
-			return pointer <= collection.getFloors();
+			return pointer <= collection.getFloors() - 1;
 		}
 
 		@Override
