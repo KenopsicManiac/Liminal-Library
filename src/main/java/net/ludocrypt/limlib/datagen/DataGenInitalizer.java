@@ -10,9 +10,9 @@ import net.ludocrypt.limlib.impl.debug.DebugDynamicChunkGenerator;
 import net.ludocrypt.limlib.impl.debug.DebugMazeChunkGenerator;
 import net.ludocrypt.limlib.impl.debug.DebugNbtChunkGenerator;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.DataProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.WorldPresetTags;
@@ -32,7 +32,17 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 	@Override
 	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
 		var pack = fabricDataGenerator.createPack();
-		pack.addProvider((FabricDataGenerator.Pack.RegistryDependentFactory<DataProvider>) (output, registriesFuture) -> new FabricDynamicRegistryProvider(output, registriesFuture) {
+		boolean loadDebugProviders = System.getProperty("limlib-debug.providers") != null;
+
+		if (loadDebugProviders) {
+			pack.addProvider(this::generateWorldPresets);
+			pack.addProvider(this::generateWorldPresetTags);
+			pack.addProvider(DebugPiecePoolDataProvider::new);
+		}
+	}
+
+	private FabricDynamicRegistryProvider generateWorldPresets(FabricDataOutput output, CompletableFuture<Provider> registriesFuture) {
+		return new FabricDynamicRegistryProvider(output, registriesFuture) {
 			@Override
 			protected void configure(HolderLookup.Provider registries, Entries entries) {
 				registries.lookup(Registries.BIOME).flatMap(a -> a.get(Biomes.THE_VOID)).ifPresent(biome -> {
@@ -60,23 +70,19 @@ public class DataGenInitalizer implements DataGeneratorEntrypoint {
 			public String getName() {
 				return "Liminal Test";
 			}
-		});
-		pack.addProvider(new FabricDataGenerator.Pack.RegistryDependentFactory<>() {
-			@Override
-			public DataProvider create(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
-				return new FabricTagProvider<>(output, Registries.WORLD_PRESET, registriesFuture) {
-					@Override
-					protected void addTags(HolderLookup.Provider wrapperLookup) {
-						this.tag(WorldPresetTags.EXTENDED)
-							.addOptional(DEBUG_KEY.location())
-							.addOptional(DEBUG_DYNAMIC_KEY.location())
-							.addOptional(DEBUG_MAZE_KEY.location());
-					}
-				};
-			}
-		});
+		};
+	}
 
-		pack.addProvider(DebugPiecePoolDataProvider::new);
+	private FabricTagProvider<WorldPreset> generateWorldPresetTags(FabricDataOutput output, CompletableFuture<Provider> registriesFuture) {
+		return new FabricTagProvider<>(output, Registries.WORLD_PRESET, registriesFuture) {
+			@Override
+			protected void addTags(Provider wrapperLookup) {
+				this.tag(WorldPresetTags.EXTENDED)
+					.addOptional(DEBUG_KEY.location())
+					.addOptional(DEBUG_DYNAMIC_KEY.location())
+					.addOptional(DEBUG_MAZE_KEY.location());
+			}
+		};
 	}
 
 	@Override
